@@ -18,3 +18,4 @@ engine/pubspec.lock
 app/pubspec.lock
 __pycache__/
 ecarts.csv
+!tools/sample.jsonl

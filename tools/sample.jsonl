@@ -1,0 +1,9 @@
+{"word": "manger", "lang_code": "fr", "pos": "verb", "etymology_text": "Du latin manducare.", "sounds": [{"ipa": "\\mɑ̃.ʒe\\"}], "senses": [{"glosses": ["Mâcher et avaler un aliment."], "examples": [{"text": "Il mange une pomme."}]}, {"glosses": ["Dépenser, dilapider."], "tags": ["familiar"]}], "synonyms": [{"word": "consommer"}, {"word": "dévorer"}], "derived": [{"word": "mangeable"}]}
+{"word": "mangeons", "lang_code": "fr", "pos": "verb", "senses": [{"glosses": ["Première personne du pluriel du présent de l’indicatif de manger."], "form_of": [{"word": "manger"}]}]}
+{"word": "beau", "lang_code": "fr", "pos": "adj", "sounds": [{"ipa": "\\bo\\"}], "forms": [{"form": "belle", "tags": ["feminine"]}, {"form": "beaux", "tags": ["plural"]}, {"form": "belles", "tags": ["plural"]}], "senses": [{"glosses": ["Qui plaît à la vue ou à l’esprit."], "examples": [{"text": "Un beau paysage."}]}], "synonyms": [{"word": "joli"}], "antonyms": [{"word": "laid"}]}
+{"word": "belles", "lang_code": "fr", "pos": "adj", "senses": [{"glosses": ["Féminin pluriel de beau."], "form_of": [{"word": "beau"}]}]}
+{"word": "œuvre", "lang_code": "fr", "pos": "noun", "tags": ["feminine"], "senses": [{"glosses": ["Ouvrage, résultat d’un travail."], "topics": ["art"]}]}
+{"word": "école", "lang_code": "fr", "pos": "noun", "tags": ["feminine"], "sounds": [{"ipa": "\\e.kɔl\\"}], "senses": [{"glosses": ["Établissement où l’on enseigne."], "examples": [{"text": "Elle va à l’école."}]}]}
+{"word": "droit", "lang_code": "fr", "pos": "noun", "tags": ["masculine"], "senses": [{"glosses": ["Ensemble des règles qui régissent la vie en société."], "topics": ["droit"]}, {"glosses": ["Faculté d’accomplir ou non une action."], "topics": ["droit"]}]}
+{"word": "house", "lang_code": "en", "pos": "noun", "senses": [{"glosses": ["A building."]}]}
+ligne invalide
