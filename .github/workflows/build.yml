@@ -1,0 +1,105 @@
+name: Compiler l'application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Tests Python (import + conjugaison)
+        run: |
+          cd tools
+          python3 test_conjugation.py
+          python3 import_wiktionnaire.py sample.jsonl /tmp/test.db
+          python3 test_import.py /tmp/test.db
+      - name: Tests du moteur Dart
+        run: |
+          cd engine
+          dart pub get
+          dart test
+
+  android:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Préparer le projet
+        working-directory: app
+        run: |
+          flutter create --platforms=android .
+          python3 - <<'PY'
+          p='android/app/src/main/AndroidManifest.xml'
+          s=open(p,encoding='utf-8').read()
+          q='<queries><intent><action android:name="android.intent.action.VIEW"/><data android:scheme="https"/></intent></queries>'
+          if '<queries>' not in s:
+              s=s.replace('<application', q+'\n    <application',1)
+          open(p,'w',encoding='utf-8').write(s)
+          PY
+          flutter pub get
+      - name: Analyse
+        working-directory: app
+        run: flutter analyze
+      - name: APK
+        working-directory: app
+        run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dictionnaire-android
+          path: app/build/app/outputs/flutter-apk/app-release.apk
+
+  windows:
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Compiler
+        working-directory: app
+        run: |
+          flutter create --platforms=windows .
+          flutter pub get
+          flutter build windows --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dictionnaire-windows
+          path: app/build/windows/x64/runner/Release
+
+  macos:
+    needs: tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Préparer le projet
+        working-directory: app
+        run: |
+          flutter create --platforms=macos .
+          # accès réseau (lien Wiktionnaire) dans le bac à sable macOS
+          for f in macos/Runner/DebugProfile.entitlements macos/Runner/Release.entitlements; do
+            /usr/libexec/PlistBuddy -c "Add :com.apple.security.network.client bool true" "$f" || true
+          done
+          flutter pub get
+      - name: Compiler
+        working-directory: app
+        run: flutter build macos --release
+      - name: Archiver
+        run: ditto -c -k --keepParent app/build/macos/Build/Products/Release/dictionnaire.app dictionnaire-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dictionnaire-macos
+          path: dictionnaire-macos.zip

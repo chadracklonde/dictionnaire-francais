@@ -1,0 +1,20 @@
+# Base complète : trop grosse pour Git (limite 100 Mo par fichier)
+*.db
+*.jsonl
+*.jsonl.gz
+app/assets/db/part_*
+!app/assets/db/part_000
+# Générés par flutter create / build
+app/android/
+app/windows/
+app/macos/
+app/ios/
+app/linux/
+app/web/
+app/build/
+app/.dart_tool/
+engine/.dart_tool/
+engine/pubspec.lock
+app/pubspec.lock
+__pycache__/
+ecarts.csv

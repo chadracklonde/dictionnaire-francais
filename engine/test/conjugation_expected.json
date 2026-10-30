@@ -1,0 +1,672 @@
+{
+  "_doc": "Resultats attendus. Cle 'mode.temps' = ligne complete (formes separees par ' | ', '' = vide) ; 'mode.temps#i' = seulement la forme d'indice i (0-5 personnes, 0-2 imperatif).",
+  "tests": {
+    "manger": {
+      "indicatif.present": "je mange | tu manges | il/elle mange | nous mangeons | vous mangez | ils/elles mangent",
+      "indicatif.imparfait": "je mangeais | tu mangeais | il/elle mangeait | nous mangions | vous mangiez | ils/elles mangeaient",
+      "indicatif.passe_simple": "je mangeai | tu mangeas | il/elle mangea | nous mangeâmes | vous mangeâtes | ils/elles mangèrent",
+      "indicatif.passe_compose": "j'ai mangé | tu as mangé | il/elle a mangé | nous avons mangé | vous avez mangé | ils/elles ont mangé",
+      "conditionnel.present": "je mangerais | tu mangerais | il/elle mangerait | nous mangerions | vous mangeriez | ils/elles mangeraient",
+      "subjonctif.present": "que je mange | que tu manges | qu'il/elle mange | que nous mangions | que vous mangiez | qu'ils/elles mangent",
+      "subjonctif.imparfait": "que je mangeasse | que tu mangeasses | qu'il/elle mangeât | que nous mangeassions | que vous mangeassiez | qu'ils/elles mangeassent",
+      "imperatif.present": "mange | mangeons | mangez",
+      "imperatif.passe": "aie mangé | ayons mangé | ayez mangé",
+      "infinitif.passe": "avoir mangé",
+      "participe.present": "mangeant",
+      "participe.passe": "mangé | ayant mangé"
+    },
+    "commencer": {
+      "indicatif.present": "je commence | tu commences | il/elle commence | nous commençons | vous commencez | ils/elles commencent",
+      "indicatif.imparfait": "je commençais | tu commençais | il/elle commençait | nous commencions | vous commenciez | ils/elles commençaient",
+      "indicatif.passe_simple": "je commençai | tu commenças | il/elle commença | nous commençâmes | vous commençâtes | ils/elles commencèrent",
+      "subjonctif.present#3": "que nous commencions",
+      "participe.present": "commençant"
+    },
+    "aimer": {
+      "indicatif.present": "j'aime | tu aimes | il/elle aime | nous aimons | vous aimez | ils/elles aiment",
+      "indicatif.imparfait#0": "j'aimais",
+      "indicatif.passe_simple": "j'aimai | tu aimas | il/elle aima | nous aimâmes | vous aimâtes | ils/elles aimèrent",
+      "indicatif.futur_simple#0": "j'aimerai",
+      "subjonctif.imparfait": "que j'aimasse | que tu aimasses | qu'il/elle aimât | que nous aimassions | que vous aimassiez | qu'ils/elles aimassent",
+      "participe.passe": "aimé | ayant aimé"
+    },
+    "appeler": {
+      "indicatif.present": "j'appelle | tu appelles | il/elle appelle | nous appelons | vous appelez | ils/elles appellent",
+      "indicatif.futur_simple": "j'appellerai | tu appelleras | il/elle appellera | nous appellerons | vous appellerez | ils/elles appelleront",
+      "subjonctif.present": "que j'appelle | que tu appelles | qu'il/elle appelle | que nous appelions | que vous appeliez | qu'ils/elles appellent",
+      "imperatif.present": "appelle | appelons | appelez"
+    },
+    "jeter": {
+      "indicatif.present": "je jette | tu jettes | il/elle jette | nous jetons | vous jetez | ils/elles jettent",
+      "indicatif.futur_simple#0": "je jetterai"
+    },
+    "épeler": {
+      "indicatif.present#0": "j'épelle",
+      "indicatif.futur_simple#0": "j'épellerai"
+    },
+    "acheter": {
+      "indicatif.present": "j'achète | tu achètes | il/elle achète | nous achetons | vous achetez | ils/elles achètent",
+      "indicatif.futur_simple#0": "j'achèterai",
+      "indicatif.imparfait#0": "j'achetais",
+      "subjonctif.present#3": "que nous achetions"
+    },
+    "geler": {
+      "indicatif.present#0": "je gèle",
+      "indicatif.present#3": "nous gelons",
+      "indicatif.futur_simple#0": "je gèlerai"
+    },
+    "lever": {
+      "indicatif.present": "je lève | tu lèves | il/elle lève | nous levons | vous levez | ils/elles lèvent",
+      "indicatif.futur_simple#0": "je lèverai",
+      "subjonctif.present#0": "que je lève",
+      "subjonctif.present#3": "que nous levions"
+    },
+    "préférer": {
+      "indicatif.present": "je préfère | tu préfères | il/elle préfère | nous préférons | vous préférez | ils/elles préfèrent",
+      "indicatif.futur_simple#0": "je préférerai",
+      "indicatif.passe_simple#0": "je préférai",
+      "subjonctif.present#3": "que nous préférions"
+    },
+    "siéger": {
+      "indicatif.present#0": "je siège",
+      "indicatif.present#3": "nous siégeons",
+      "indicatif.imparfait#0": "je siégeais",
+      "indicatif.futur_simple#0": "je siégerai"
+    },
+    "dépecer": {
+      "indicatif.present#0": "je dépèce",
+      "indicatif.present#3": "nous dépeçons",
+      "indicatif.futur_simple#0": "je dépècerai"
+    },
+    "léguer": {
+      "indicatif.present#0": "je lègue",
+      "indicatif.futur_simple#0": "je léguerai"
+    },
+    "payer": {
+      "indicatif.present": "je paie | tu paies | il/elle paie | nous payons | vous payez | ils/elles paient",
+      "indicatif.futur_simple#0": "je paierai",
+      "indicatif.imparfait#3": "nous payions",
+      "subjonctif.present#3": "que nous payions"
+    },
+    "nettoyer": {
+      "indicatif.present#0": "je nettoie",
+      "indicatif.present#3": "nous nettoyons",
+      "indicatif.futur_simple#0": "je nettoierai",
+      "indicatif.passe_simple#0": "je nettoyai"
+    },
+    "envoyer": {
+      "indicatif.present": "j'envoie | tu envoies | il/elle envoie | nous envoyons | vous envoyez | ils/elles envoient",
+      "indicatif.futur_simple#0": "j'enverrai",
+      "conditionnel.present#0": "j'enverrais"
+    },
+    "renvoyer": {
+      "indicatif.futur_simple#0": "je renverrai"
+    },
+    "étudier": {
+      "indicatif.present#0": "j'étudie",
+      "indicatif.imparfait#3": "nous étudiions",
+      "subjonctif.present#3": "que nous étudiions"
+    },
+    "habiter": {
+      "indicatif.present#0": "j'habite"
+    },
+    "hacher": {
+      "indicatif.present#0": "je hache",
+      "indicatif.passe_compose#0": "j'ai haché"
+    },
+    "neiger": {
+      "indicatif.present#0": "",
+      "indicatif.present#2": "il neige",
+      "indicatif.imparfait#2": "il neigeait"
+    },
+    "finir": {
+      "indicatif.present": "je finis | tu finis | il/elle finit | nous finissons | vous finissez | ils/elles finissent",
+      "indicatif.imparfait#0": "je finissais",
+      "indicatif.passe_simple": "je finis | tu finis | il/elle finit | nous finîmes | vous finîtes | ils/elles finirent",
+      "indicatif.futur_simple#0": "je finirai",
+      "indicatif.passe_compose#0": "j'ai fini",
+      "subjonctif.present": "que je finisse | que tu finisses | qu'il/elle finisse | que nous finissions | que vous finissiez | qu'ils/elles finissent",
+      "subjonctif.imparfait#2": "qu'il/elle finît",
+      "imperatif.present": "finis | finissons | finissez",
+      "participe.present": "finissant"
+    },
+    "haïr": {
+      "indicatif.present": "je hais | tu hais | il/elle hait | nous haïssons | vous haïssez | ils/elles haïssent",
+      "indicatif.passe_simple": "je haïs | tu haïs | il/elle haït | nous haïmes | vous haïtes | ils/elles haïrent",
+      "indicatif.passe_compose#0": "j'ai haï",
+      "subjonctif.imparfait#2": "qu'il/elle haït"
+    },
+    "asservir": {"indicatif.present#3": "nous asservissons"},
+    "répartir": {"indicatif.present#3": "nous répartissons"},
+    "assortir": {"indicatif.present#3": "nous assortissons"},
+    "être": {
+      "indicatif.present": "je suis | tu es | il/elle est | nous sommes | vous êtes | ils/elles sont",
+      "indicatif.imparfait": "j'étais | tu étais | il/elle était | nous étions | vous étiez | ils/elles étaient",
+      "indicatif.passe_simple": "je fus | tu fus | il/elle fut | nous fûmes | vous fûtes | ils/elles furent",
+      "indicatif.futur_simple": "je serai | tu seras | il/elle sera | nous serons | vous serez | ils/elles seront",
+      "indicatif.passe_compose#0": "j'ai été",
+      "conditionnel.present": "je serais | tu serais | il/elle serait | nous serions | vous seriez | ils/elles seraient",
+      "subjonctif.present": "que je sois | que tu sois | qu'il/elle soit | que nous soyons | que vous soyez | qu'ils/elles soient",
+      "subjonctif.imparfait": "que je fusse | que tu fusses | qu'il/elle fût | que nous fussions | que vous fussiez | qu'ils/elles fussent",
+      "imperatif.present": "sois | soyons | soyez",
+      "participe.present": "étant",
+      "participe.passe": "été | ayant été"
+    },
+    "avoir": {
+      "indicatif.present": "j'ai | tu as | il/elle a | nous avons | vous avez | ils/elles ont",
+      "indicatif.imparfait": "j'avais | tu avais | il/elle avait | nous avions | vous aviez | ils/elles avaient",
+      "indicatif.passe_simple": "j'eus | tu eus | il/elle eut | nous eûmes | vous eûtes | ils/elles eurent",
+      "indicatif.futur_simple": "j'aurai | tu auras | il/elle aura | nous aurons | vous aurez | ils/elles auront",
+      "indicatif.passe_compose#0": "j'ai eu",
+      "subjonctif.present": "que j'aie | que tu aies | qu'il/elle ait | que nous ayons | que vous ayez | qu'ils/elles aient",
+      "subjonctif.imparfait#2": "qu'il/elle eût",
+      "imperatif.present": "aie | ayons | ayez",
+      "participe.present": "ayant"
+    },
+    "aller": {
+      "indicatif.present": "je vais | tu vas | il/elle va | nous allons | vous allez | ils/elles vont",
+      "indicatif.imparfait#0": "j'allais",
+      "indicatif.passe_simple": "j'allai | tu allas | il/elle alla | nous allâmes | vous allâtes | ils/elles allèrent",
+      "indicatif.futur_simple": "j'irai | tu iras | il/elle ira | nous irons | vous irez | ils/elles iront",
+      "indicatif.passe_compose": "je suis allé(e) | tu es allé(e) | il/elle est allé(e) | nous sommes allé(e)s | vous êtes allé(e)(s) | ils/elles sont allé(e)s",
+      "conditionnel.present#0": "j'irais",
+      "subjonctif.present": "que j'aille | que tu ailles | qu'il/elle aille | que nous allions | que vous alliez | qu'ils/elles aillent",
+      "imperatif.present": "va | allons | allez",
+      "participe.present": "allant"
+    },
+    "faire": {
+      "indicatif.present": "je fais | tu fais | il/elle fait | nous faisons | vous faites | ils/elles font",
+      "indicatif.imparfait#0": "je faisais",
+      "indicatif.passe_simple": "je fis | tu fis | il/elle fit | nous fîmes | vous fîtes | ils/elles firent",
+      "indicatif.futur_simple#0": "je ferai",
+      "indicatif.passe_compose#0": "j'ai fait",
+      "subjonctif.present": "que je fasse | que tu fasses | qu'il/elle fasse | que nous fassions | que vous fassiez | qu'ils/elles fassent",
+      "subjonctif.imparfait#2": "qu'il/elle fît",
+      "imperatif.present": "fais | faisons | faites",
+      "participe.present": "faisant"
+    },
+    "satisfaire": {
+      "indicatif.present#4": "vous satisfaites",
+      "indicatif.present#5": "ils/elles satisfont"
+    },
+    "dire": {
+      "indicatif.present": "je dis | tu dis | il/elle dit | nous disons | vous dites | ils/elles disent",
+      "indicatif.passe_simple#3": "nous dîmes",
+      "indicatif.futur_simple#0": "je dirai",
+      "subjonctif.present#0": "que je dise",
+      "imperatif.present": "dis | disons | dites"
+    },
+    "redire": {"indicatif.present#4": "vous redites"},
+    "contredire": {
+      "indicatif.present#4": "vous contredisez",
+      "imperatif.present": "contredis | contredisons | contredisez"
+    },
+    "maudire": {
+      "indicatif.present": "je maudis | tu maudis | il/elle maudit | nous maudissons | vous maudissez | ils/elles maudissent",
+      "participe.passe": "maudit | ayant maudit"
+    },
+    "voir": {
+      "indicatif.present": "je vois | tu vois | il/elle voit | nous voyons | vous voyez | ils/elles voient",
+      "indicatif.imparfait#0": "je voyais",
+      "indicatif.passe_simple#0": "je vis",
+      "indicatif.futur_simple#0": "je verrai",
+      "subjonctif.present": "que je voie | que tu voies | qu'il/elle voie | que nous voyions | que vous voyiez | qu'ils/elles voient",
+      "participe.passe": "vu | ayant vu"
+    },
+    "prévoir": {
+      "indicatif.present#0": "je prévois",
+      "indicatif.futur_simple#0": "je prévoirai"
+    },
+    "revoir": {"indicatif.futur_simple#0": "je reverrai"},
+    "pourvoir": {
+      "indicatif.passe_simple#0": "je pourvus",
+      "indicatif.futur_simple#0": "je pourvoirai"
+    },
+    "prendre": {
+      "indicatif.present": "je prends | tu prends | il/elle prend | nous prenons | vous prenez | ils/elles prennent",
+      "indicatif.imparfait#0": "je prenais",
+      "indicatif.passe_simple": "je pris | tu pris | il/elle prit | nous prîmes | vous prîtes | ils/elles prirent",
+      "indicatif.futur_simple#0": "je prendrai",
+      "indicatif.passe_compose#0": "j'ai pris",
+      "subjonctif.present": "que je prenne | que tu prennes | qu'il/elle prenne | que nous prenions | que vous preniez | qu'ils/elles prennent"
+    },
+    "apprendre": {
+      "indicatif.present#5": "ils/elles apprennent",
+      "indicatif.passe_compose#0": "j'ai appris"
+    },
+    "comprendre": {"indicatif.present#3": "nous comprenons"},
+    "vendre": {
+      "indicatif.present": "je vends | tu vends | il/elle vend | nous vendons | vous vendez | ils/elles vendent",
+      "indicatif.passe_simple#0": "je vendis",
+      "indicatif.futur_simple#0": "je vendrai",
+      "indicatif.passe_compose#0": "j'ai vendu",
+      "subjonctif.present#0": "que je vende",
+      "imperatif.present": "vends | vendons | vendez"
+    },
+    "répondre": {
+      "indicatif.present#0": "je réponds",
+      "indicatif.present#2": "il/elle répond"
+    },
+    "perdre": {"indicatif.present#2": "il/elle perd"},
+    "descendre": {"indicatif.present#0": "je descends"},
+    "venir": {
+      "indicatif.present": "je viens | tu viens | il/elle vient | nous venons | vous venez | ils/elles viennent",
+      "indicatif.imparfait#0": "je venais",
+      "indicatif.passe_simple": "je vins | tu vins | il/elle vint | nous vînmes | vous vîntes | ils/elles vinrent",
+      "indicatif.futur_simple#0": "je viendrai",
+      "indicatif.passe_compose": "je suis venu(e) | tu es venu(e) | il/elle est venu(e) | nous sommes venu(e)s | vous êtes venu(e)(s) | ils/elles sont venu(e)s",
+      "subjonctif.present": "que je vienne | que tu viennes | qu'il/elle vienne | que nous venions | que vous veniez | qu'ils/elles viennent",
+      "subjonctif.imparfait": "que je vinsse | que tu vinsses | qu'il/elle vînt | que nous vinssions | que vous vinssiez | qu'ils/elles vinssent",
+      "imperatif.present": "viens | venons | venez",
+      "participe.present": "venant"
+    },
+    "devenir": {"indicatif.passe_compose#0": "je suis devenu(e)"},
+    "tenir": {
+      "indicatif.present": "je tiens | tu tiens | il/elle tient | nous tenons | vous tenez | ils/elles tiennent",
+      "indicatif.passe_compose#0": "j'ai tenu"
+    },
+    "obtenir": {
+      "indicatif.present#0": "j'obtiens",
+      "indicatif.futur_simple#0": "j'obtiendrai"
+    },
+    "convenir": {"indicatif.passe_compose#0": "j'ai convenu"},
+    "partir": {
+      "indicatif.present": "je pars | tu pars | il/elle part | nous partons | vous partez | ils/elles partent",
+      "indicatif.imparfait#0": "je partais",
+      "indicatif.passe_simple#0": "je partis",
+      "indicatif.futur_simple#0": "je partirai",
+      "indicatif.passe_compose#0": "je suis parti(e)",
+      "subjonctif.present#0": "que je parte",
+      "subjonctif.imparfait#2": "qu'il/elle partît",
+      "imperatif.present": "pars | partons | partez"
+    },
+    "repartir": {"indicatif.present#0": "je repars"},
+    "sortir": {
+      "indicatif.present#0": "je sors",
+      "indicatif.present#3": "nous sortons"
+    },
+    "ressortir": {"indicatif.passe_compose#0": "je suis ressorti(e)"},
+    "sentir": {"indicatif.present#2": "il/elle sent"},
+    "mentir": {"indicatif.present#2": "il/elle ment"},
+    "servir": {
+      "indicatif.present#0": "je sers",
+      "indicatif.present#2": "il/elle sert"
+    },
+    "dormir": {
+      "indicatif.present": "je dors | tu dors | il/elle dort | nous dormons | vous dormez | ils/elles dorment",
+      "indicatif.passe_compose#0": "j'ai dormi"
+    },
+    "ouvrir": {
+      "indicatif.present": "j'ouvre | tu ouvres | il/elle ouvre | nous ouvrons | vous ouvrez | ils/elles ouvrent",
+      "indicatif.imparfait#0": "j'ouvrais",
+      "indicatif.passe_simple#0": "j'ouvris",
+      "indicatif.futur_simple#0": "j'ouvrirai",
+      "indicatif.passe_compose#0": "j'ai ouvert",
+      "subjonctif.present#0": "que j'ouvre",
+      "imperatif.present": "ouvre | ouvrons | ouvrez",
+      "participe.present": "ouvrant"
+    },
+    "offrir": {
+      "indicatif.present#0": "j'offre",
+      "indicatif.passe_compose#0": "j'ai offert"
+    },
+    "découvrir": {
+      "indicatif.present#3": "nous découvrons",
+      "indicatif.passe_compose#0": "j'ai découvert"
+    },
+    "souffrir": {
+      "indicatif.present#0": "je souffre",
+      "indicatif.passe_compose#0": "j'ai souffert"
+    },
+    "cueillir": {
+      "indicatif.present": "je cueille | tu cueilles | il/elle cueille | nous cueillons | vous cueillez | ils/elles cueillent",
+      "indicatif.futur_simple#0": "je cueillerai",
+      "indicatif.passe_simple#0": "je cueillis",
+      "indicatif.passe_compose#0": "j'ai cueilli",
+      "imperatif.present": "cueille | cueillons | cueillez"
+    },
+    "accueillir": {"indicatif.present#0": "j'accueille"},
+    "courir": {
+      "indicatif.present": "je cours | tu cours | il/elle court | nous courons | vous courez | ils/elles courent",
+      "indicatif.passe_simple#0": "je courus",
+      "indicatif.futur_simple#0": "je courrai",
+      "indicatif.passe_compose#0": "j'ai couru",
+      "subjonctif.present#0": "que je coure"
+    },
+    "parcourir": {"indicatif.passe_compose#0": "j'ai parcouru"},
+    "mourir": {
+      "indicatif.present": "je meurs | tu meurs | il/elle meurt | nous mourons | vous mourez | ils/elles meurent",
+      "indicatif.passe_simple#0": "je mourus",
+      "indicatif.futur_simple#0": "je mourrai",
+      "indicatif.passe_compose": "je suis mort(e) | tu es mort(e) | il/elle est mort(e) | nous sommes mort(e)s | vous êtes mort(e)(s) | ils/elles sont mort(e)s",
+      "subjonctif.present": "que je meure | que tu meures | qu'il/elle meure | que nous mourions | que vous mouriez | qu'ils/elles meurent"
+    },
+    "savoir": {
+      "indicatif.present": "je sais | tu sais | il/elle sait | nous savons | vous savez | ils/elles savent",
+      "indicatif.imparfait#0": "je savais",
+      "indicatif.passe_simple#0": "je sus",
+      "indicatif.futur_simple#0": "je saurai",
+      "indicatif.passe_compose#0": "j'ai su",
+      "subjonctif.present": "que je sache | que tu saches | qu'il/elle sache | que nous sachions | que vous sachiez | qu'ils/elles sachent",
+      "imperatif.present": "sache | sachons | sachez",
+      "participe.present": "sachant"
+    },
+    "pouvoir": {
+      "indicatif.present": "je peux | tu peux | il/elle peut | nous pouvons | vous pouvez | ils/elles peuvent",
+      "indicatif.passe_simple#0": "je pus",
+      "indicatif.futur_simple#0": "je pourrai",
+      "indicatif.passe_compose#0": "j'ai pu",
+      "subjonctif.present": "que je puisse | que tu puisses | qu'il/elle puisse | que nous puissions | que vous puissiez | qu'ils/elles puissent",
+      "imperatif.present": ""
+    },
+    "vouloir": {
+      "indicatif.present": "je veux | tu veux | il/elle veut | nous voulons | vous voulez | ils/elles veulent",
+      "indicatif.passe_simple#0": "je voulus",
+      "indicatif.futur_simple#0": "je voudrai",
+      "conditionnel.present#0": "je voudrais",
+      "indicatif.passe_compose#0": "j'ai voulu",
+      "subjonctif.present": "que je veuille | que tu veuilles | qu'il/elle veuille | que nous voulions | que vous vouliez | qu'ils/elles veuillent",
+      "imperatif.present": "veuille | veuillons | veuillez"
+    },
+    "devoir": {
+      "indicatif.present": "je dois | tu dois | il/elle doit | nous devons | vous devez | ils/elles doivent",
+      "indicatif.passe_simple#0": "je dus",
+      "indicatif.futur_simple#0": "je devrai",
+      "indicatif.passe_compose#0": "j'ai dû",
+      "subjonctif.present": "que je doive | que tu doives | qu'il/elle doive | que nous devions | que vous deviez | qu'ils/elles doivent"
+    },
+    "recevoir": {
+      "indicatif.present": "je reçois | tu reçois | il/elle reçoit | nous recevons | vous recevez | ils/elles reçoivent",
+      "indicatif.imparfait#0": "je recevais",
+      "indicatif.passe_simple#0": "je reçus",
+      "indicatif.futur_simple#0": "je recevrai",
+      "indicatif.passe_compose#0": "j'ai reçu",
+      "subjonctif.present": "que je reçoive | que tu reçoives | qu'il/elle reçoive | que nous recevions | que vous receviez | qu'ils/elles reçoivent"
+    },
+    "apercevoir": {"indicatif.present#0": "j'aperçois"},
+    "concevoir": {"indicatif.present#3": "nous concevons"},
+    "décevoir": {"indicatif.present#0": "je déçois"},
+    "mettre": {
+      "indicatif.present": "je mets | tu mets | il/elle met | nous mettons | vous mettez | ils/elles mettent",
+      "indicatif.imparfait#0": "je mettais",
+      "indicatif.passe_simple": "je mis | tu mis | il/elle mit | nous mîmes | vous mîtes | ils/elles mirent",
+      "indicatif.futur_simple#0": "je mettrai",
+      "indicatif.passe_compose#0": "j'ai mis",
+      "subjonctif.present#0": "que je mette",
+      "imperatif.present": "mets | mettons | mettez"
+    },
+    "permettre": {"indicatif.present#0": "je permets"},
+    "écrire": {
+      "indicatif.present": "j'écris | tu écris | il/elle écrit | nous écrivons | vous écrivez | ils/elles écrivent",
+      "indicatif.imparfait#0": "j'écrivais",
+      "indicatif.passe_simple#0": "j'écrivis",
+      "indicatif.futur_simple#0": "j'écrirai",
+      "indicatif.passe_compose#0": "j'ai écrit",
+      "subjonctif.present#0": "que j'écrive",
+      "imperatif.present": "écris | écrivons | écrivez"
+    },
+    "décrire": {"indicatif.present#0": "je décris"},
+    "lire": {
+      "indicatif.present": "je lis | tu lis | il/elle lit | nous lisons | vous lisez | ils/elles lisent",
+      "indicatif.passe_simple#0": "je lus",
+      "indicatif.futur_simple#0": "je lirai",
+      "indicatif.passe_compose#0": "j'ai lu",
+      "subjonctif.present#0": "que je lise"
+    },
+    "élire": {"indicatif.present#0": "j'élis"},
+    "boire": {
+      "indicatif.present": "je bois | tu bois | il/elle boit | nous buvons | vous buvez | ils/elles boivent",
+      "indicatif.imparfait#0": "je buvais",
+      "indicatif.passe_simple#0": "je bus",
+      "indicatif.futur_simple#0": "je boirai",
+      "indicatif.passe_compose#0": "j'ai bu",
+      "subjonctif.present": "que je boive | que tu boives | qu'il/elle boive | que nous buvions | que vous buviez | qu'ils/elles boivent"
+    },
+    "connaître": {
+      "indicatif.present": "je connais | tu connais | il/elle connaît | nous connaissons | vous connaissez | ils/elles connaissent",
+      "indicatif.imparfait#0": "je connaissais",
+      "indicatif.passe_simple#0": "je connus",
+      "indicatif.futur_simple#0": "je connaîtrai",
+      "indicatif.passe_compose#0": "j'ai connu",
+      "subjonctif.present#0": "que je connaisse"
+    },
+    "paraître": {
+      "indicatif.present#2": "il/elle paraît",
+      "indicatif.passe_compose#0": "j'ai paru"
+    },
+    "reconnaître": {"indicatif.present#0": "je reconnais"},
+    "naître": {
+      "indicatif.present": "je nais | tu nais | il/elle naît | nous naissons | vous naissez | ils/elles naissent",
+      "indicatif.passe_simple#0": "je naquis",
+      "indicatif.futur_simple#0": "je naîtrai",
+      "indicatif.passe_compose": "je suis né(e) | tu es né(e) | il/elle est né(e) | nous sommes né(e)s | vous êtes né(e)(s) | ils/elles sont né(e)s",
+      "subjonctif.imparfait#2": "qu'il/elle naquît"
+    },
+    "croître": {
+      "indicatif.present": "je croîs | tu croîs | il/elle croît | nous croissons | vous croissez | ils/elles croissent",
+      "indicatif.passe_compose#0": "j'ai crû"
+    },
+    "accroître": {
+      "indicatif.present": "j'accrois | tu accrois | il/elle accroît | nous accroissons | vous accroissez | ils/elles accroissent",
+      "indicatif.passe_compose#0": "j'ai accru"
+    },
+    "croire": {
+      "indicatif.present": "je crois | tu crois | il/elle croit | nous croyons | vous croyez | ils/elles croient",
+      "indicatif.imparfait#0": "je croyais",
+      "indicatif.passe_simple#0": "je crus",
+      "indicatif.futur_simple#0": "je croirai",
+      "indicatif.passe_compose#0": "j'ai cru",
+      "subjonctif.present": "que je croie | que tu croies | qu'il/elle croie | que nous croyions | que vous croyiez | qu'ils/elles croient"
+    },
+    "vivre": {
+      "indicatif.present": "je vis | tu vis | il/elle vit | nous vivons | vous vivez | ils/elles vivent",
+      "indicatif.passe_simple#0": "je vécus",
+      "indicatif.futur_simple#0": "je vivrai",
+      "indicatif.passe_compose#0": "j'ai vécu",
+      "subjonctif.present#0": "que je vive"
+    },
+    "survivre": {"indicatif.present#0": "je survis"},
+    "suivre": {
+      "indicatif.present": "je suis | tu suis | il/elle suit | nous suivons | vous suivez | ils/elles suivent",
+      "indicatif.passe_simple#0": "je suivis",
+      "indicatif.passe_compose#0": "j'ai suivi"
+    },
+    "peindre": {
+      "indicatif.present": "je peins | tu peins | il/elle peint | nous peignons | vous peignez | ils/elles peignent",
+      "indicatif.imparfait#0": "je peignais",
+      "indicatif.passe_simple#0": "je peignis",
+      "indicatif.futur_simple#0": "je peindrai",
+      "indicatif.passe_compose#0": "j'ai peint",
+      "subjonctif.present": "que je peigne | que tu peignes | qu'il/elle peigne | que nous peignions | que vous peigniez | qu'ils/elles peignent"
+    },
+    "craindre": {
+      "indicatif.present": "je crains | tu crains | il/elle craint | nous craignons | vous craignez | ils/elles craignent"
+    },
+    "joindre": {
+      "indicatif.present#0": "je joins",
+      "indicatif.present#3": "nous joignons"
+    },
+    "plaindre": {"indicatif.present#0": "je plains"},
+    "conduire": {
+      "indicatif.present": "je conduis | tu conduis | il/elle conduit | nous conduisons | vous conduisez | ils/elles conduisent",
+      "indicatif.imparfait#0": "je conduisais",
+      "indicatif.passe_simple#0": "je conduisis",
+      "indicatif.futur_simple#0": "je conduirai",
+      "indicatif.passe_compose#0": "j'ai conduit",
+      "subjonctif.present#0": "que je conduise"
+    },
+    "construire": {"indicatif.present#0": "je construis"},
+    "détruire": {"indicatif.passe_compose#0": "j'ai détruit"},
+    "cuire": {"indicatif.passe_compose#0": "j'ai cuit"},
+    "nuire": {
+      "indicatif.present#0": "je nuis",
+      "indicatif.passe_compose#0": "j'ai nui"
+    },
+    "rire": {
+      "indicatif.present": "je ris | tu ris | il/elle rit | nous rions | vous riez | ils/elles rient",
+      "indicatif.imparfait#0": "je riais",
+      "indicatif.passe_simple#0": "je ris",
+      "indicatif.futur_simple#0": "je rirai",
+      "indicatif.passe_compose#0": "j'ai ri",
+      "subjonctif.present#3": "que nous riions"
+    },
+    "sourire": {"indicatif.present#0": "je souris"},
+    "plaire": {
+      "indicatif.present": "je plais | tu plais | il/elle plaît | nous plaisons | vous plaisez | ils/elles plaisent",
+      "indicatif.passe_simple#0": "je plus",
+      "indicatif.futur_simple#0": "je plairai",
+      "indicatif.passe_compose#0": "j'ai plu",
+      "subjonctif.present#0": "que je plaise"
+    },
+    "taire": {
+      "indicatif.present": "je tais | tu tais | il/elle tait | nous taisons | vous taisez | ils/elles taisent",
+      "indicatif.passe_compose#0": "j'ai tu"
+    },
+    "vaincre": {
+      "indicatif.present": "je vaincs | tu vaincs | il/elle vainc | nous vainquons | vous vainquez | ils/elles vainquent",
+      "indicatif.passe_simple#0": "je vainquis",
+      "indicatif.passe_compose#0": "j'ai vaincu",
+      "subjonctif.present#0": "que je vainque"
+    },
+    "convaincre": {"indicatif.present#0": "je convaincs"},
+    "battre": {
+      "indicatif.present": "je bats | tu bats | il/elle bat | nous battons | vous battez | ils/elles battent",
+      "indicatif.passe_compose#0": "j'ai battu"
+    },
+    "combattre": {"indicatif.present#3": "nous combattons"},
+    "rompre": {
+      "indicatif.present": "je romps | tu romps | il/elle rompt | nous rompons | vous rompez | ils/elles rompent",
+      "indicatif.passe_compose#0": "j'ai rompu"
+    },
+    "interrompre": {"indicatif.present#2": "il/elle interrompt"},
+    "acquérir": {
+      "indicatif.present": "j'acquiers | tu acquiers | il/elle acquiert | nous acquérons | vous acquérez | ils/elles acquièrent",
+      "indicatif.imparfait#0": "j'acquérais",
+      "indicatif.passe_simple#0": "j'acquis",
+      "indicatif.futur_simple#0": "j'acquerrai",
+      "indicatif.passe_compose#0": "j'ai acquis",
+      "subjonctif.present": "que j'acquière | que tu acquières | qu'il/elle acquière | que nous acquérions | que vous acquériez | qu'ils/elles acquièrent"
+    },
+    "conquérir": {"indicatif.present#0": "je conquiers"},
+    "vêtir": {
+      "indicatif.present": "je vêts | tu vêts | il/elle vêt | nous vêtons | vous vêtez | ils/elles vêtent",
+      "indicatif.passe_simple#0": "je vêtis",
+      "indicatif.passe_compose#0": "j'ai vêtu"
+    },
+    "revêtir": {"indicatif.present#0": "je revêts"},
+    "fuir": {
+      "indicatif.present": "je fuis | tu fuis | il/elle fuit | nous fuyons | vous fuyez | ils/elles fuient",
+      "indicatif.imparfait#0": "je fuyais",
+      "indicatif.passe_simple#0": "je fuis",
+      "indicatif.futur_simple#0": "je fuirai",
+      "indicatif.passe_compose#0": "j'ai fui",
+      "subjonctif.present": "que je fuie | que tu fuies | qu'il/elle fuie | que nous fuyions | que vous fuyiez | qu'ils/elles fuient"
+    },
+    "bouillir": {
+      "indicatif.present": "je bous | tu bous | il/elle bout | nous bouillons | vous bouillez | ils/elles bouillent",
+      "indicatif.futur_simple#0": "je bouillirai",
+      "indicatif.passe_compose#0": "j'ai bouilli"
+    },
+    "asseoir": {
+      "indicatif.present": "j'assieds | tu assieds | il/elle assied | nous asseyons | vous asseyez | ils/elles asseyent",
+      "indicatif.imparfait#0": "j'asseyais",
+      "indicatif.passe_simple#0": "j'assis",
+      "indicatif.futur_simple#0": "j'assiérai",
+      "indicatif.passe_compose#0": "j'ai assis",
+      "subjonctif.present#0": "que j'asseye"
+    },
+    "valoir": {
+      "indicatif.present": "je vaux | tu vaux | il/elle vaut | nous valons | vous valez | ils/elles valent",
+      "indicatif.futur_simple#0": "je vaudrai",
+      "indicatif.passe_compose#0": "j'ai valu",
+      "subjonctif.present": "que je vaille | que tu vailles | qu'il/elle vaille | que nous valions | que vous valiez | qu'ils/elles vaillent"
+    },
+    "prévaloir": {
+      "indicatif.present#0": "je prévaux",
+      "subjonctif.present#0": "que je prévale"
+    },
+    "émouvoir": {
+      "indicatif.present#0": "j'émeus",
+      "indicatif.present#3": "nous émouvons",
+      "indicatif.passe_compose#0": "j'ai ému",
+      "indicatif.futur_simple#0": "j'émouvrai"
+    },
+    "mouvoir": {"indicatif.passe_compose#0": "j'ai mû"},
+    "résoudre": {
+      "indicatif.present": "je résous | tu résous | il/elle résout | nous résolvons | vous résolvez | ils/elles résolvent",
+      "indicatif.passe_simple#0": "je résolus",
+      "indicatif.futur_simple#0": "je résoudrai",
+      "indicatif.passe_compose#0": "j'ai résolu",
+      "subjonctif.present#0": "que je résolve"
+    },
+    "coudre": {
+      "indicatif.present": "je couds | tu couds | il/elle coud | nous cousons | vous cousez | ils/elles cousent",
+      "indicatif.passe_compose#0": "j'ai cousu"
+    },
+    "moudre": {
+      "indicatif.present#3": "nous moulons",
+      "indicatif.passe_compose#0": "j'ai moulu"
+    },
+    "conclure": {
+      "indicatif.present": "je conclus | tu conclus | il/elle conclut | nous concluons | vous concluez | ils/elles concluent",
+      "indicatif.passe_compose#0": "j'ai conclu",
+      "subjonctif.present#0": "que je conclue"
+    },
+    "suffire": {
+      "indicatif.present": "je suffis | tu suffis | il/elle suffit | nous suffisons | vous suffisez | ils/elles suffisent",
+      "indicatif.passe_compose#0": "j'ai suffi"
+    },
+    "traire": {
+      "indicatif.present": "je trais | tu trais | il/elle trait | nous trayons | vous trayez | ils/elles traient",
+      "indicatif.passe_simple#0": "",
+      "indicatif.passe_compose#0": "j'ai trait"
+    },
+    "extraire": {"indicatif.present#3": "nous extrayons"},
+    "falloir": {
+      "indicatif.present#0": "",
+      "indicatif.present#2": "il faut",
+      "indicatif.imparfait#2": "il fallait",
+      "indicatif.futur_simple#2": "il faudra",
+      "indicatif.passe_compose#2": "il a fallu",
+      "subjonctif.present#2": "qu'il faille",
+      "imperatif.present": ""
+    },
+    "pleuvoir": {
+      "indicatif.present#2": "il pleut",
+      "indicatif.imparfait#2": "il pleuvait",
+      "indicatif.passe_simple#2": "il plut",
+      "indicatif.futur_simple#2": "il pleuvra",
+      "indicatif.passe_compose#2": "il a plu",
+      "subjonctif.present#2": "qu'il pleuve"
+    },
+    "se laver": {
+      "indicatif.present": "je me lave | tu te laves | il/elle se lave | nous nous lavons | vous vous lavez | ils/elles se lavent",
+      "indicatif.passe_compose": "je me suis lavé(e) | tu t'es lavé(e) | il/elle s'est lavé(e) | nous nous sommes lavé(e)s | vous vous êtes lavé(e)(s) | ils/elles se sont lavé(e)s",
+      "indicatif.plus_que_parfait#0": "je m'étais lavé(e)",
+      "subjonctif.present": "que je me lave | que tu te laves | qu'il/elle se lave | que nous nous lavions | que vous vous laviez | qu'ils/elles se lavent",
+      "imperatif.present": "lave-toi | lavons-nous | lavez-vous",
+      "infinitif.present": "se laver",
+      "infinitif.passe": "s'être lavé(e)(s)",
+      "participe.present": "se lavant",
+      "participe.passe": "lavé | s'étant lavé(e)(s)"
+    },
+    "s'appeler": {
+      "indicatif.present": "je m'appelle | tu t'appelles | il/elle s'appelle | nous nous appelons | vous vous appelez | ils/elles s'appellent",
+      "indicatif.futur_simple#0": "je m'appellerai",
+      "indicatif.passe_compose#0": "je me suis appelé(e)",
+      "subjonctif.present#0": "que je m'appelle",
+      "imperatif.present": "appelle-toi | appelons-nous | appelez-vous",
+      "infinitif.present": "s'appeler",
+      "participe.present": "s'appelant"
+    },
+    "s'asseoir": {
+      "indicatif.present": "je m'assieds | tu t'assieds | il/elle s'assied | nous nous asseyons | vous vous asseyez | ils/elles s'asseyent",
+      "imperatif.present": "assieds-toi | asseyons-nous | asseyez-vous"
+    },
+    "se rendre": {
+      "indicatif.present": "je me rends | tu te rends | il/elle se rend | nous nous rendons | vous vous rendez | ils/elles se rendent",
+      "indicatif.passe_compose#0": "je me suis rendu(e)"
+    }
+  },
+  "unknown": ["zzzzzz", "xyz"]
+}

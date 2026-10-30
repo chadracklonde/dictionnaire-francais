@@ -1,0 +1,42 @@
+name: Générer la base de données
+
+# À lancer à la main (onglet Actions > Run workflow) en donnant l'adresse du
+# fichier JSONL français de kaikki.org.
+on:
+  workflow_dispatch:
+    inputs:
+      jsonl_url:
+        description: "URL du fichier JSONL (.jsonl ou .jsonl.gz) du français"
+        required: true
+      limit:
+        description: "Limiter le nombre d'entrées (vide = tout)"
+        required: false
+        default: ""
+
+jobs:
+  base:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Télécharger les données
+        run: curl -L --fail -o data.jsonl.gz "${{ inputs.jsonl_url }}"
+      - name: Importer
+        working-directory: tools
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="--limit ${{ inputs.limit }}"; fi
+          python3 import_wiktionnaire.py ../data.jsonl.gz ../dictionnaire.db $ARGS
+          python3 test_import.py ../dictionnaire.db
+      - name: Vérifier la conjugaison
+        working-directory: tools
+        run: python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv | tee ../rapport.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: base-et-rapport
+          path: |
+            dictionnaire.db
+            ecarts.csv
+            rapport.txt
