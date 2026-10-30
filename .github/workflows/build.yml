@@ -97,7 +97,7 @@ jobs:
             /usr/libexec/PlistBuddy -c "Add :com.apple.security.network.client bool true" "$f" || true
           done
           flutter pub get
-          dart run flutter_launcher_icons -f flutter_launcher_icons-macos.yaml
+          dart run flutter_launcher_icons -f flutter_launcher_icons-macos.yaml > icones.txt 2>&1 || { echo "::warning::Icône macOS non générée : $(tr '\n' ' ' < icones.txt | cut -c1-600)"; }
       - name: Compiler
         working-directory: app
         run: flutter build macos --release
