@@ -29,16 +29,3 @@ flutter:
   assets:
     - assets/db/
     - assets/conjugation_models.json
-
-flutter_launcher_icons:
-  image_path: assets/icon/logo.png
-  android: true
-  adaptive_icon_background: "#1B5E8C"
-  adaptive_icon_foreground: assets/icon/logo_foreground.png
-  windows:
-    generate: true
-    image_path: assets/icon/logo.png
-    icon_size: 256
-  macos:
-    generate: true
-    image_path: assets/icon/logo.png
