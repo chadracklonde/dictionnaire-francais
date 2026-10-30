@@ -50,6 +50,7 @@ jobs:
           open(p,'w',encoding='utf-8').write(s)
           PY
           flutter pub get
+          dart run flutter_launcher_icons
       - name: Analyse
         working-directory: app
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
@@ -73,6 +74,7 @@ jobs:
         run: |
           flutter create --platforms=windows .
           flutter pub get
+          dart run flutter_launcher_icons
           flutter build windows --release
       - uses: actions/upload-artifact@v4
         with:
@@ -95,6 +97,7 @@ jobs:
             /usr/libexec/PlistBuddy -c "Add :com.apple.security.network.client bool true" "$f" || true
           done
           flutter pub get
+          dart run flutter_launcher_icons
       - name: Compiler
         working-directory: app
         run: flutter build macos --release
