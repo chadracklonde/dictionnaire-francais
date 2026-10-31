@@ -47,7 +47,7 @@ def main():
 
     con = sqlite3.connect(args.db)
     verbs = [row[0] for row in con.execute(
-        "SELECT DISTINCT word FROM entries WHERE pos = 'verbe' AND is_lemma = 1 "
+        "SELECT DISTINCT word FROM entries WHERE pos = 'verbe' AND is_lemma = 1 AND word NOT LIKE '% %' "
         "AND (word LIKE '%er' OR word LIKE '%ir' OR word LIKE '%re' OR word LIKE '%oir')")]
     known = set(con.execute(
         "SELECT f.form, e.word FROM forms f JOIN entries e ON e.id = f.entry_id "

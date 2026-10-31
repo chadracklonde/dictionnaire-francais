@@ -58,7 +58,6 @@ CREATE TABLE forms (
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     PRIMARY KEY (norm, form, entry_id)
 ) WITHOUT ROWID;
-CREATE INDEX idx_forms_entry ON forms(entry_id);
 
 -- Recherche instantanée : préfixes + mots, sans accents ni casse
 CREATE VIRTUAL TABLE search_fts USING fts5(

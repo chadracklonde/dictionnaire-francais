@@ -16,18 +16,13 @@ on:
 jobs:
   base:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
       - name: Télécharger les données
         run: curl -L --fail -o data.jsonl.gz "${{ inputs.jsonl_url }}"
-      - name: Taille du fichier (lignes)
-        run: |
-          TOTAL=$(gzip -dc data.jsonl.gz | wc -l)
-          FR=$(gzip -dc data.jsonl.gz | grep -c '"lang_code": "fr"')
-          echo "::notice::LIGNES total=$TOTAL fr=$FR"
       - name: Aperçu de la structure des données
         run: |
           python3 - <<'PY2'

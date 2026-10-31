@@ -22,6 +22,10 @@ from urllib.parse import quote
 SCHEMA = Path(__file__).with_name("schema.sql")
 WIKI_URL = "https://fr.wiktionary.org/wiki/"
 BATCH = 20000
+MAX_EXAMPLES = 2        # exemples conservés par acception
+MAX_EXAMPLE_CHARS = 300
+MAX_ETYMOLOGY_CHARS = 700
+MAX_RELATIONS = {"synonyme": 15, "antonyme": 15, "derive": 20}
 
 POS_FR = {
     "noun": "nom", "verb": "verbe", "adj": "adjectif", "adv": "adverbe",
@@ -91,6 +95,8 @@ def etymology_of(entry: dict):
     text = entry.get("etymology_text")
     if not text:
         text = "\n".join(t for t in entry.get("etymology_texts") or [] if t)
+    if text and len(text) > MAX_ETYMOLOGY_CHARS:
+        text = text[:MAX_ETYMOLOGY_CHARS].rsplit(" ", 1)[0] + "…"
     return text or None
 
 
@@ -145,15 +151,17 @@ def main():
     con.executescript(SCHEMA.read_text(encoding="utf-8"))
     cur = con.cursor()
 
-    pending_forms = []      # (forme, lemme_texte)
+    cur.execute("CREATE TEMP TABLE tmp_forms(form TEXT, norm TEXT, lemma TEXT, pos TEXT)")
     own_forms = []          # (forme, entry_id)
-    pending_relations = []  # lignes prêtes
+    pending_forms = []      # (forme, lemme, catégorie) -> table temporaire
+    pending_relations = []
     entry_rows, sense_rows, example_rows = [], [], []
     next_entry = next_sense = next_example = 1
-    count = skipped = 0
+    count = redirects = skipped = 0
 
     def flush():
         nonlocal entry_rows, sense_rows, example_rows, pending_relations
+        nonlocal pending_forms, own_forms
         cur.executemany(
             "INSERT INTO entries(id,word,norm,pos,gender,ipa,etymology,"
             "is_lemma,source,source_url) VALUES (?,?,?,?,?,?,?,?,?,?)",
@@ -167,13 +175,25 @@ def main():
         cur.executemany(
             "INSERT INTO relations(entry_id,type,word) VALUES (?,?,?)",
             pending_relations)
+        cur.executemany("INSERT INTO tmp_forms VALUES (?,?,?,?)", pending_forms)
+        cur.executemany(
+            "INSERT OR IGNORE INTO forms(form,norm,entry_id) VALUES (?,?,?)",
+            own_forms)
         entry_rows, sense_rows, example_rows = [], [], []
-        pending_relations = []
+        pending_relations, pending_forms, own_forms = [], [], []
 
     with open_text(args.jsonl) as handle:
         for line_no, line in enumerate(handle, 1):
             if args.limit and line_no > args.limit:
                 break
+            if line_no % 500000 == 0:
+                print(f"  {line_no} lignes lues, {count} entrées, "
+                      f"{redirects} renvois…", file=sys.stderr, flush=True)
+            # Saut rapide des autres langues, sans décoder le JSON
+            if ('"lang_code"' in line and '"lang_code": "fr"' not in line
+                    and '"lang_code":"fr"' not in line):
+                skipped += 1
+                continue
             line = line.strip()
             if not line:
                 continue
@@ -192,18 +212,24 @@ def main():
                 skipped += 1
                 continue
 
+            pos = POS_FR.get(entry.get("pos"), entry.get("pos"))
+
+            # Forme fléchie ou variante : simple renvoi vers son lemme
             targets = form_of_targets(entry)
-            is_lemma = 0 if targets else 1
-            for target in targets:
-                pending_forms.append((word, target))
+            if targets:
+                for target in set(targets):
+                    pending_forms.append((word, normalize(word), target, pos))
+                redirects += 1
+                if len(pending_forms) >= BATCH:
+                    flush()
+                continue
 
             entry_id = next_entry
             next_entry += 1
-            pos = POS_FR.get(entry.get("pos"), entry.get("pos"))
             entry_rows.append((
                 entry_id, word, normalize(word), pos, gender_of(entry),
                 first_ipa(entry), etymology_of(entry),
-                is_lemma, "wiktionnaire",
+                1, "wiktionnaire",
                 WIKI_URL + quote(word.replace(" ", "_")),
             ))
 
@@ -217,11 +243,15 @@ def main():
                 next_sense += 1
                 sense_rows.append((sense_id, entry_id, order, definition,
                                    sense_register(sense), sense_domain(sense)))
+                kept = 0
                 for ex in sense.get("examples", []):
+                    if kept >= MAX_EXAMPLES:
+                        break
                     text = (ex.get("text") or "").strip() if isinstance(ex, dict) else ""
-                    if text:
+                    if text and len(text) <= MAX_EXAMPLE_CHARS:
                         example_rows.append((next_example, sense_id, text))
                         next_example += 1
+                        kept += 1
 
             for key, rel_type in REL_TYPES.items():
                 if not rel_type:
@@ -231,6 +261,8 @@ def main():
                 for sense in entry.get("senses", []):
                     collected.extend(sense.get(key, []))
                 for item in collected:
+                    if len(seen) >= MAX_RELATIONS.get(rel_type, 15):
+                        break
                     rel_word = item.get("word") if isinstance(item, dict) else item
                     if rel_word and rel_word not in seen:
                         seen.add(rel_word)
@@ -239,30 +271,29 @@ def main():
             for form in entry.get("forms", []):
                 form_text = (form.get("form") or "").strip()
                 if form_text and form_text != word and form_text != "-":
-                    own_forms.append((form_text, entry_id))
+                    own_forms.append((form_text, normalize(form_text), entry_id))
 
             count += 1
             if len(entry_rows) >= BATCH:
                 flush()
-                print(f"  {count} entrées…", file=sys.stderr)
 
     flush()
+    print(f"  lecture terminée : {count} entrées, {redirects} renvois",
+          file=sys.stderr, flush=True)
 
-    # Résolution des formes fléchies -> lemme (on préfère les vrais lemmes)
-    lemma_ids = {}
-    for entry_id, word, is_lemma in cur.execute(
-            "SELECT id, word, is_lemma FROM entries ORDER BY is_lemma ASC, id DESC"):
-        lemma_ids[word] = entry_id  # le dernier écrit gagne : lemme prioritaire
-
-    form_rows = set()
-    for form_text, lemma_word in pending_forms:
-        target_id = lemma_ids.get(lemma_word)
-        if target_id:
-            form_rows.add((form_text, normalize(form_text), target_id))
-    for form_text, entry_id in own_forms:
-        form_rows.add((form_text, normalize(form_text), entry_id))
-    cur.executemany("INSERT OR IGNORE INTO forms(form,norm,entry_id) VALUES (?,?,?)",
-                    form_rows)
+    # Résolution des renvois -> lemme (même catégorie d'abord, sinon n'importe laquelle)
+    cur.execute("""
+        INSERT OR IGNORE INTO forms(form, norm, entry_id)
+        SELECT form, norm, id FROM (
+            SELECT t.form AS form, t.norm AS norm,
+                   COALESCE(
+                     (SELECT e.id FROM entries e WHERE e.word = t.lemma AND e.pos = t.pos LIMIT 1),
+                     (SELECT e.id FROM entries e WHERE e.word = t.lemma LIMIT 1)
+                   ) AS id
+            FROM tmp_forms t
+        ) WHERE id IS NOT NULL
+    """)
+    cur.execute("DROP TABLE tmp_forms")
 
     # Fréquence provisoire : les lemmes courts passent devant dans l'autocomplétion
     cur.execute("UPDATE entries SET freq = CASE WHEN is_lemma=1 THEN "
@@ -278,6 +309,7 @@ def main():
         "attribution": "Contenu issu du Wiktionnaire et de ses contributeurs, "
                        "modifié (restructuré) pour cette application.",
         "entrees": str(count),
+        "formes": str(cur.execute("SELECT COUNT(*) FROM forms").fetchone()[0]),
     }
     cur.executemany("INSERT INTO meta(key,value) VALUES (?,?)", meta.items())
 
@@ -287,7 +319,7 @@ def main():
     con.close()
 
     size = db_path.stat().st_size / 1_000_000
-    print(f"Terminé : {count} entrées, {skipped} lignes ignorées, "
+    print(f"Terminé : {count} entrées, {redirects} renvois, {skipped} lignes ignorées, "
           f"{size:.1f} Mo -> {db_path}")
 
 
