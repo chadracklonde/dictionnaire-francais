@@ -305,7 +305,7 @@ def main():
                 form_text = usable_form(form.get("form") or "", word, pos)
                 if form_text and form_text != word:
                     n = normalize(form_text)
-                    own_forms.append((n, entry_id, None if n == form_text else form_text))
+                    own_forms.append((n, entry_id, "" if n == form_text else form_text))
 
             count += 1
             if len(entry_rows) >= BATCH:
@@ -318,7 +318,7 @@ def main():
     # Résolution des renvois -> lemme (même catégorie d'abord, sinon n'importe laquelle)
     cur.execute("""
         INSERT OR IGNORE INTO forms(norm, entry_id, form)
-        SELECT norm, id, CASE WHEN form = norm THEN NULL ELSE form END FROM (
+        SELECT norm, id, CASE WHEN form = norm THEN '' ELSE form END FROM (
             SELECT t.form AS form, t.norm AS norm,
                    COALESCE(
                      (SELECT e.id FROM entries e WHERE e.word = t.lemma AND e.pos = t.pos LIMIT 1),

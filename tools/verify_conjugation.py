@@ -13,6 +13,7 @@ données.
 """
 import argparse
 import csv
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -53,7 +54,7 @@ def main():
         "SELECT DISTINCT word FROM entries WHERE pos = 'verbe' AND is_lemma = 1 AND word NOT LIKE '% %' "
         "AND (word LIKE '%er' OR word LIKE '%ir' OR word LIKE '%re' OR word LIKE '%oir')")]
     known = set(con.execute(
-        "SELECT COALESCE(f.form, f.norm), e.word FROM forms f JOIN entries e ON e.id = f.entry_id "
+        "SELECT COALESCE(NULLIF(f.form, ''), f.norm), e.word FROM forms f JOIN entries e ON e.id = f.entry_id "
         "WHERE e.pos = 'verbe'"))
     print(f"{len(verbs)} verbes, {len(known)} formes fléchies connues")
 
@@ -62,7 +63,8 @@ def main():
     missing_by_suffix = Counter()
 
     for inf in verbs:
-        forms = all_forms(conj, inf)
+        # verbes pronominaux : « s’énerver » se conjugue comme « énerver »
+        forms = all_forms(conj, re.sub(r"^(se |s[’'])", "", inf))
         if forms is None:
             unknown_verbs.append(inf)
             continue

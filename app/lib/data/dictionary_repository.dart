@@ -52,7 +52,7 @@ class DictionaryRepository {
 
     final formRows = await _db.rawQuery(
       'SELECT e.word AS word, group_concat(DISTINCT e.pos) AS pos, '
-      'MIN(COALESCE(f.form, f.norm)) AS form FROM forms f JOIN entries e ON e.id = f.entry_id '
+      'MIN(COALESCE(NULLIF(f.form, \'\'), f.norm)) AS form FROM forms f JOIN entries e ON e.id = f.entry_id '
       'WHERE f.norm = ? AND e.norm != ? GROUP BY e.word LIMIT 5',
       [q, q],
     );
