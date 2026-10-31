@@ -23,6 +23,11 @@ jobs:
         with: { python-version: '3.12' }
       - name: Télécharger les données
         run: curl -L --fail -o data.jsonl.gz "${{ inputs.jsonl_url }}"
+      - name: Taille du fichier (lignes)
+        run: |
+          TOTAL=$(gzip -dc data.jsonl.gz | wc -l)
+          FR=$(gzip -dc data.jsonl.gz | grep -c '"lang_code": "fr"')
+          echo "::notice::LIGNES total=$TOTAL fr=$FR"
       - name: Aperçu de la structure des données
         run: |
           python3 - <<'PY2'
@@ -70,7 +75,9 @@ jobs:
           python3 report_db.py ../dictionnaire.db | tee ../rapport_base.txt
       - name: Vérifier la conjugaison
         working-directory: tools
-        run: python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv | tee ../rapport.txt
+        run: |
+          python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv | tee ../rapport.txt
+          echo "::notice::CONJUGAISON $(head -c 3500 ../rapport.txt | tr '\n' '¶')"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -17,7 +17,6 @@ VERBES = "SELECT COUNT(DISTINCT word) FROM entries WHERE pos='verbe' AND is_lemm
 def out(text):
     lines.append(text)
     print(text)
-    print("::notice::RAPPORT " + text)
 
 
 def one(sql):
@@ -46,3 +45,5 @@ for w in ("manger", "lire", "mangeons", "belles", "ecole"):
     r = con.execute("SELECT word,pos,is_lemma FROM entries WHERE norm=? LIMIT 3", (w,)).fetchall()
     f = con.execute("SELECT COUNT(*) FROM forms WHERE norm=?", (w,)).fetchone()[0]
     out(f"test {w} : entrees={r} formes={f}")
+
+print("::notice::RAPPORT-COMPLET " + " ¶ ".join(lines).replace("\n", " "))
