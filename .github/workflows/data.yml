@@ -23,20 +23,45 @@ jobs:
         with: { python-version: '3.12' }
       - name: Télécharger les données
         run: curl -L --fail -o data.jsonl.gz "${{ inputs.jsonl_url }}"
+      - name: Aperçu de la structure des données
+        run: |
+          python3 - <<'PY2'
+          import gzip, json
+          n = 0; keys = {}; langs = {}
+          with gzip.open("data.jsonl.gz", "rt", encoding="utf-8") as f:
+              for i, line in enumerate(f):
+                  if i >= 20000: break
+                  try: e = json.loads(line)
+                  except Exception: continue
+                  langs[e.get("lang_code")] = langs.get(e.get("lang_code"), 0) + 1
+                  if e.get("lang_code") == "fr":
+                      for k in e: keys[k] = keys.get(k, 0) + 1
+                      if n < 2:
+                          print("::notice::EXEMPLE " + json.dumps(e, ensure_ascii=False)[:900].replace("\n", " "))
+                      n += 1
+          print("::notice::LANGUES(20000 premieres lignes) " + json.dumps(dict(sorted(langs.items(), key=lambda x: -x[1])[:8])))
+          print("::notice::CHAMPS fr " + json.dumps(keys, ensure_ascii=False))
+          PY2
       - name: Importer
         working-directory: tools
         run: |
           ARGS=""
           if [ -n "${{ inputs.limit }}" ]; then ARGS="--limit ${{ inputs.limit }}"; fi
-          python3 import_wiktionnaire.py ../data.jsonl.gz ../dictionnaire.db $ARGS
+          set +e
+          python3 import_wiktionnaire.py ../data.jsonl.gz ../dictionnaire.db $ARGS > ../import.log 2>&1
+          code=$?
+          echo "::notice::IMPORT code=$code $(tail -n 12 ../import.log | tr '\n' ' ' | cut -c1-900)"
+          [ $code -eq 0 ] || exit $code
           python3 test_import.py ../dictionnaire.db
       - name: Vérifier la conjugaison
         working-directory: tools
         run: python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv | tee ../rapport.txt
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: base-et-rapport
           path: |
             dictionnaire.db
             ecarts.csv
             rapport.txt
+            import.log
