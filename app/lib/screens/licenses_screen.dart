@@ -122,9 +122,9 @@ class LicensesScreen extends StatelessWidget {
                     'composées et pronominales comprises.',
                   ),
                   const SizedBox(height: 24),
-                  Text('Développement', style: theme.textTheme.titleMedium),
+                  Text('Concepteur', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  const Text('Développé par Chadrack Londe.'),
+                  const _Designer(),
                   const SizedBox(height: 24),
                   OutlinedButton(
                     onPressed: () => showLicensePage(
@@ -165,6 +165,87 @@ class _Figure extends StatelessWidget {
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         ],
+      ),
+    );
+  }
+}
+
+/// Présentation du concepteur de l'application.
+class _Designer extends StatelessWidget {
+  const _Designer();
+
+  static const _name = 'Chadrack T. Londe';
+  static const _roles = <String>[
+    'Coordinateur des contenus en français pour l\'Afrique, United Methodist Communications (UMCom)',
+    'Correspondant de UM News',
+    'Webmaster et Assistant numérique du Recteur, Université de Kindu',
+    'Directeur de la Radio Télé Communautaire Maniema Libertés (RTC-MALI, 105.1 FM)',
+  ];
+  static const _bio =
+      'Communicateur francophone basé à Kindu (province du Maniema, '
+      'République démocratique du Congo), Chadrack T. Londe travaille entre '
+      'journalisme, communication institutionnelle et médias au service du '
+      'développement, en français, en anglais et en swahili. Il a conçu ce '
+      'dictionnaire pour mettre la langue française à la portée de tous, '
+      'même sans connexion Internet.';
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  child: Text(
+                    'CL',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_name, style: theme.textTheme.titleMedium),
+                      Text(
+                        'Concepteur de l\'application',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(_bio),
+            const SizedBox(height: 12),
+            for (final role in _roles)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2, right: 8),
+                      child: Icon(Icons.circle, size: 8),
+                    ),
+                    Expanded(child: Text(role)),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
