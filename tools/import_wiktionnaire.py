@@ -13,6 +13,7 @@ Contenu sous licence CC BY-SA 4.0 : voir le champ « meta » de la base.
 import argparse
 import gzip
 import json
+import re
 import sqlite3
 import sys
 import unicodedata
@@ -49,6 +50,32 @@ REL_TYPES = {
     "synonyms": "synonyme", "antonyms": "antonyme",
     "derived": "derive", "related": None,
 }
+
+
+# « il/elle/on organise », « j’organise », « que tu lises », « je me lave »…
+# -> on retire le pronom pour retrouver la forme simple (« organise »).
+PRONOUNS = re.compile(
+    r"^(?:que |qu[’'])?(?:j[’']|je |tu |il/elle/on |nous |vous |ils/elles )"
+    r"(?:(?:me |te |se |nous |vous )|[mts][’'])?"
+)
+
+
+def usable_form(form_text: str, lemma_word: str, pos):
+    """Forme à indexer pour la recherche, ou None.
+
+    Le Wiktionnaire liste aussi des tournures (« j’ai organisé »,
+    « en organisant ») : inutiles pour retrouver un mot, on les écarte.
+    """
+    text = form_text.strip()
+    if pos == "verbe":
+        text = PRONOUNS.sub("", text, count=1).strip()
+        if " " in text:
+            return None
+    elif " " in text and " " not in lemma_word:
+        return None
+    if not text or text == "-" or "/" in text or "(" in text:
+        return None
+    return text
 
 
 def normalize(text: str) -> str:
@@ -218,6 +245,9 @@ def main():
             # Forme fléchie ou variante : simple renvoi vers son lemme
             targets = form_of_targets(entry)
             if targets:
+                if " " in word and not any(" " in t for t in targets):
+                    redirects += 1
+                    continue
                 for target in set(targets):
                     pending_forms.append((word, normalize(word), target, pos))
                 redirects += 1
@@ -272,8 +302,8 @@ def main():
                         pending_relations.append((entry_id, rel_type, rel_word))
 
             for form in entry.get("forms", []):
-                form_text = (form.get("form") or "").strip()
-                if form_text and form_text != word and form_text != "-":
+                form_text = usable_form(form.get("form") or "", word, pos)
+                if form_text and form_text != word:
                     n = normalize(form_text)
                     own_forms.append((n, entry_id, None if n == form_text else form_text))
 

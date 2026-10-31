@@ -32,8 +32,8 @@ def all_forms(conj, inf):
     forms.update(subj_imparfait(s["ps"]) or [])
     forms.add(s["prp"])
     forms.add(s["pp"])
-    # accords du participe passé (féminin, pluriel)
-    forms.update({s["pp"] + "e", s["pp"] + "s", s["pp"] + "es"})
+    # Les accords du participe passé (-e, -s, -es) sont des adjectifs dans le
+    # Wiktionnaire : on ne les vérifie pas ici.
     # l'infinitif lui-même est le lemme : rien à vérifier
     return {f for f in forms if f}
 
