@@ -39,6 +39,21 @@ jobs:
                       if n < 2:
                           print("::notice::EXEMPLE " + json.dumps(e, ensure_ascii=False)[:900].replace("\n", " "))
                       n += 1
+          sk = {}; tg = {}; infl = 0
+          with gzip.open("data.jsonl.gz", "rt", encoding="utf-8") as f:
+              for i, line in enumerate(f):
+                  if i >= 20000: break
+                  try: e = json.loads(line)
+                  except Exception: continue
+                  if e.get("lang_code") != "fr": continue
+                  for t in e.get("tags", []): tg[t] = tg.get(t, 0) + 1
+                  for s_ in e.get("senses", []):
+                      for k in s_: sk[k] = sk.get(k, 0) + 1
+                  if any(("form_of" in s_ or "alt_of" in s_) for s_ in e.get("senses", [])) and infl < 2:
+                      print("::notice::FLECHI " + json.dumps(e, ensure_ascii=False)[:700].replace("\\n", " "))
+                      infl += 1
+          print("::notice::CLES-SENS " + json.dumps(sk, ensure_ascii=False))
+          print("::notice::TAGS " + json.dumps(dict(sorted(tg.items(), key=lambda x: -x[1])[:30]), ensure_ascii=False))
           print("::notice::LANGUES(20000 premieres lignes) " + json.dumps(dict(sorted(langs.items(), key=lambda x: -x[1])[:8])))
           print("::notice::CHAMPS fr " + json.dumps(keys, ensure_ascii=False))
           PY2
@@ -52,7 +67,7 @@ jobs:
           code=$?
           echo "::notice::IMPORT code=$code $(tail -n 12 ../import.log | tr '\n' ' ' | cut -c1-900)"
           [ $code -eq 0 ] || exit $code
-          python3 test_import.py ../dictionnaire.db
+          python3 report_db.py ../dictionnaire.db | tee ../rapport_base.txt
       - name: Vérifier la conjugaison
         working-directory: tools
         run: python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv | tee ../rapport.txt
@@ -65,3 +80,4 @@ jobs:
             ecarts.csv
             rapport.txt
             import.log
+            rapport_base.txt

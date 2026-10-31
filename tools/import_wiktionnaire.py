@@ -86,6 +86,14 @@ def first_ipa(entry: dict):
     return None
 
 
+def etymology_of(entry: dict):
+    """Édition française : `etymology_texts` (liste) ; anglaise : `etymology_text`."""
+    text = entry.get("etymology_text")
+    if not text:
+        text = "\n".join(t for t in entry.get("etymology_texts") or [] if t)
+    return text or None
+
+
 def clean_definition(sense: dict):
     glosses = sense.get("glosses") or sense.get("raw_glosses") or []
     text = " ; ".join(g.strip() for g in glosses if g and g.strip())
@@ -194,7 +202,7 @@ def main():
             pos = POS_FR.get(entry.get("pos"), entry.get("pos"))
             entry_rows.append((
                 entry_id, word, normalize(word), pos, gender_of(entry),
-                first_ipa(entry), entry.get("etymology_text") or None,
+                first_ipa(entry), etymology_of(entry),
                 is_lemma, "wiktionnaire",
                 WIKI_URL + quote(word.replace(" ", "_")),
             ))
