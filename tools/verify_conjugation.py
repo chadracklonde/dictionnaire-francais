@@ -15,6 +15,7 @@ import argparse
 import csv
 import sqlite3
 import sys
+from pathlib import Path
 from collections import Counter
 
 from conjugation_ref import Conjugator, subj_imparfait
@@ -43,6 +44,7 @@ def main():
     parser.add_argument("--csv", help="écrire les écarts dans ce fichier")
     parser.add_argument("--max", type=int, default=30,
                         help="nombre de verbes en écart à afficher")
+    parser.add_argument("--diag", help="fichier de diagnostic détaillé")
     args = parser.parse_args()
 
     con = sqlite3.connect(args.db)
@@ -50,7 +52,7 @@ def main():
         "SELECT DISTINCT word FROM entries WHERE pos = 'verbe' AND is_lemma = 1 AND word NOT LIKE '% %' "
         "AND (word LIKE '%er' OR word LIKE '%ir' OR word LIKE '%re' OR word LIKE '%oir')")]
     known = set(con.execute(
-        "SELECT f.form, e.word FROM forms f JOIN entries e ON e.id = f.entry_id "
+        "SELECT COALESCE(f.form, f.norm), e.word FROM forms f JOIN entries e ON e.id = f.entry_id "
         "WHERE e.pos = 'verbe'"))
     print(f"{len(verbs)} verbes, {len(known)} formes fléchies connues")
 
@@ -84,6 +86,27 @@ def main():
         print(f"  {inf}: {len(missing)} formes absentes, ex. {', '.join(missing[:5])}")
     if unknown_verbs:
         print("\nVerbes non reconnus (ex.) :", ", ".join(unknown_verbs[:20]))
+
+    if args.diag:
+        import random
+        bins = Counter()
+        for _, miss in gaps:
+            n = len(miss)
+            bins["1-3" if n <= 3 else "4-10" if n <= 10 else "11-25" if n <= 25 else "26+"] += 1
+        few = [(i, m) for i, m in gaps if len(m) <= 5]
+        random.Random(7).shuffle(few)
+        endings = Counter(f[-3:] for _, m in few for f in m)
+        lines = [
+            "Répartition des écarts (formes absentes par verbe) : "
+            + ", ".join(f"{k}: {bins[k]}" for k in ("1-3", "4-10", "11-25", "26+")),
+            "Terminaisons les plus fréquentes parmi les formes absentes (1-5 par verbe) : "
+            + ", ".join(f"-{k} ({c})" for k, c in endings.most_common(12)),
+            "Exemples (1-5 formes absentes) :",
+        ]
+        for inf, m in few[:45]:
+            lines.append(f"  {inf}: {', '.join(m)}")
+        lines.append("Verbes non reconnus (ex.) : " + ", ".join(unknown_verbs[:40]))
+        Path(args.diag).write_text("\n".join(lines), encoding="utf-8")
 
     if args.csv:
         with open(args.csv, "w", newline="", encoding="utf-8") as handle:

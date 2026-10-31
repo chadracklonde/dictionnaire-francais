@@ -52,11 +52,13 @@ CREATE TABLE relations (
 CREATE INDEX idx_relations_entry ON relations(entry_id, type);
 
 -- « mangeons » -> manger ; « belles » -> beau
+-- `form` n'est renseigné que s'il diffère de `norm` (accents, majuscules) :
+-- on économise ainsi un tiers de la place.
 CREATE TABLE forms (
-    form     TEXT NOT NULL,
     norm     TEXT NOT NULL,
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
-    PRIMARY KEY (norm, form, entry_id)
+    form     TEXT,
+    PRIMARY KEY (norm, entry_id)
 ) WITHOUT ROWID;
 
 -- Recherche instantanée : préfixes + mots, sans accents ni casse

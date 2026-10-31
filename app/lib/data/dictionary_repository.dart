@@ -52,7 +52,7 @@ class DictionaryRepository {
 
     final formRows = await _db.rawQuery(
       'SELECT e.word AS word, group_concat(DISTINCT e.pos) AS pos, '
-      'MIN(f.form) AS form FROM forms f JOIN entries e ON e.id = f.entry_id '
+      'MIN(COALESCE(f.form, f.norm)) AS form FROM forms f JOIN entries e ON e.id = f.entry_id '
       'WHERE f.norm = ? AND e.norm != ? GROUP BY e.word LIMIT 5',
       [q, q],
     );
@@ -208,7 +208,7 @@ class DictionaryRepository {
     final w = await _db.rawQuery('SELECT COUNT(DISTINCT word) AS n FROM entries');
     final v = await _db.rawQuery(
       "SELECT COUNT(DISTINCT word) AS n FROM entries "
-      "WHERE pos = 'verbe' AND is_lemma = 1",
+      "WHERE pos = 'verbe' AND is_lemma = 1 AND word NOT LIKE '% %'",
     );
     return (words: w.first['n'] as int, verbs: v.first['n'] as int);
   }

@@ -185,14 +185,16 @@ class _EntryCard extends StatelessWidget {
                 ],
               ),
             ],
-            if (entry.sourceUrl != null && entry.source == 'wiktionnaire')
+            if (entry.source == 'wiktionnaire')
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   icon: const Icon(Icons.open_in_new, size: 18),
                   label: const Text('Voir sur le Wiktionnaire'),
                   onPressed: () => launchUrl(
-                    Uri.parse(entry.sourceUrl!),
+                    Uri.parse(entry.sourceUrl ??
+                        'https://fr.wiktionary.org/wiki/'
+                            '${Uri.encodeComponent(entry.word.replaceAll(' ', '_'))}'),
                     mode: LaunchMode.externalApplication,
                   ),
                 ),

@@ -16,6 +16,8 @@ on:
 jobs:
   base:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
@@ -71,8 +73,21 @@ jobs:
       - name: Vérifier la conjugaison
         working-directory: tools
         run: |
-          python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv | tee ../rapport.txt
-          echo "::notice::CONJUGAISON $(head -c 3500 ../rapport.txt | tr '\n' '¶')"
+          python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv --diag ../diag.txt | tee ../rapport.txt
+          echo "::notice::CONJUGAISON $(head -c 600 ../rapport.txt | tr '\n' '¶')"
+          echo "::notice::DIAGNOSTIC $(head -c 6000 ../diag.txt | tr '\n' '¶')"
+      - name: Publier la base dans les Releases (import complet seulement)
+        if: ${{ inputs.limit == '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gzip -9 -k dictionnaire.db
+          gh release view base-donnees >/dev/null 2>&1 || gh release create base-donnees \
+            --title "Base de données du dictionnaire" \
+            --notes "Base SQLite générée à partir du Wiktionnaire (fr.wiktionary.org) par kaikki.org / wiktextract. Licence CC BY-SA 4.0 : https://creativecommons.org/licenses/by-sa/4.0/deed.fr — contenu modifié (restructuré, allégé) pour l'application."
+          gh release upload base-donnees dictionnaire.db.gz --clobber
+          ls -la dictionnaire.db dictionnaire.db.gz
+          echo "::notice::RELEASE publiée : $(ls -la dictionnaire.db.gz | awk '{print $5}') octets compressés"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

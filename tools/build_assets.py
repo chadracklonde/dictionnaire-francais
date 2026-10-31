@@ -54,7 +54,7 @@ def main():
     con = sqlite3.connect(db)
     manifest["words"] = con.execute("SELECT COUNT(DISTINCT word) FROM entries").fetchone()[0]
     manifest["verbs"] = con.execute(
-        "SELECT COUNT(DISTINCT word) FROM entries WHERE pos='verbe' AND is_lemma=1"
+        "SELECT COUNT(DISTINCT word) FROM entries WHERE pos='verbe' AND is_lemma=1 AND word NOT LIKE '% %'"
     ).fetchone()[0]
     con.close()
     print(f"{manifest['words']} mots, {manifest['verbs']} verbes")

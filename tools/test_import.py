@@ -49,10 +49,9 @@ check("beau : antonyme laid + synonyme joli",
       ("antonyme", "laid") in rows and ("synonyme", "joli") in rows, str(rows))
 
 # 6. Genre, prononciation, source
-rows = q("SELECT gender, ipa, source_url FROM entries WHERE word='école'")
-check("école : féminin + API + lien source",
-      rows and rows[0][0] == "f" and rows[0][1] and "wiktionary.org" in rows[0][2],
-      str(rows))
+rows = q("SELECT gender, ipa FROM entries WHERE word='école'")
+check("école : féminin + API",
+      rows and rows[0][0] == "f" and rows[0][1], str(rows))
 
 # 7. Langues étrangères ignorées, métadonnées de licence présentes
 check("mot anglais ignoré", q("SELECT 1 FROM entries WHERE word='house'") == [])

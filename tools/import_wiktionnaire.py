@@ -23,6 +23,7 @@ SCHEMA = Path(__file__).with_name("schema.sql")
 WIKI_URL = "https://fr.wiktionary.org/wiki/"
 BATCH = 20000
 MAX_EXAMPLES = 2        # exemples conservés par acception
+MAX_EXAMPLES_ENTRY = 3  # ... et par entrée
 MAX_EXAMPLE_CHARS = 300
 MAX_ETYMOLOGY_CHARS = 700
 MAX_RELATIONS = {"synonyme": 15, "antonyme": 15, "derive": 20}
@@ -177,7 +178,7 @@ def main():
             pending_relations)
         cur.executemany("INSERT INTO tmp_forms VALUES (?,?,?,?)", pending_forms)
         cur.executemany(
-            "INSERT OR IGNORE INTO forms(form,norm,entry_id) VALUES (?,?,?)",
+            "INSERT OR IGNORE INTO forms(norm,entry_id,form) VALUES (?,?,?)",
             own_forms)
         entry_rows, sense_rows, example_rows = [], [], []
         pending_relations, pending_forms, own_forms = [], [], []
@@ -230,10 +231,11 @@ def main():
                 entry_id, word, normalize(word), pos, gender_of(entry),
                 first_ipa(entry), etymology_of(entry),
                 1, "wiktionnaire",
-                WIKI_URL + quote(word.replace(" ", "_")),
+                None,   # l'adresse du Wiktionnaire est recalculée à l'affichage
             ))
 
             order = 0
+            entry_examples = 0
             for sense in entry.get("senses", []):
                 definition = clean_definition(sense)
                 if not definition:
@@ -245,13 +247,14 @@ def main():
                                    sense_register(sense), sense_domain(sense)))
                 kept = 0
                 for ex in sense.get("examples", []):
-                    if kept >= MAX_EXAMPLES:
+                    if kept >= MAX_EXAMPLES or entry_examples >= MAX_EXAMPLES_ENTRY:
                         break
                     text = (ex.get("text") or "").strip() if isinstance(ex, dict) else ""
                     if text and len(text) <= MAX_EXAMPLE_CHARS:
                         example_rows.append((next_example, sense_id, text))
                         next_example += 1
                         kept += 1
+                        entry_examples += 1
 
             for key, rel_type in REL_TYPES.items():
                 if not rel_type:
@@ -271,7 +274,8 @@ def main():
             for form in entry.get("forms", []):
                 form_text = (form.get("form") or "").strip()
                 if form_text and form_text != word and form_text != "-":
-                    own_forms.append((form_text, normalize(form_text), entry_id))
+                    n = normalize(form_text)
+                    own_forms.append((n, entry_id, None if n == form_text else form_text))
 
             count += 1
             if len(entry_rows) >= BATCH:
@@ -283,8 +287,8 @@ def main():
 
     # Résolution des renvois -> lemme (même catégorie d'abord, sinon n'importe laquelle)
     cur.execute("""
-        INSERT OR IGNORE INTO forms(form, norm, entry_id)
-        SELECT form, norm, id FROM (
+        INSERT OR IGNORE INTO forms(norm, entry_id, form)
+        SELECT norm, id, CASE WHEN form = norm THEN NULL ELSE form END FROM (
             SELECT t.form AS form, t.norm AS norm,
                    COALESCE(
                      (SELECT e.id FROM entries e WHERE e.word = t.lemma AND e.pos = t.pos LIMIT 1),
