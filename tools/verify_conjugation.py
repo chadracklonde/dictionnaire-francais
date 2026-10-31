@@ -45,6 +45,7 @@ def main():
     parser.add_argument("--max", type=int, default=30,
                         help="nombre de verbes en écart à afficher")
     parser.add_argument("--diag", help="fichier de diagnostic détaillé")
+    parser.add_argument("--probe", default="", help="verbes à détailler, séparés par des virgules")
     args = parser.parse_args()
 
     con = sqlite3.connect(args.db)
@@ -106,6 +107,12 @@ def main():
         for inf, m in few[:45]:
             lines.append(f"  {inf}: {', '.join(m)}")
         lines.append("Verbes non reconnus (ex.) : " + ", ".join(unknown_verbs[:40]))
+        for pv in [x for x in args.probe.split(",") if x]:
+            have = sorted(f for (f, lem) in known if lem == pv)
+            lines.append(f"SONDE {pv}: connues({len(have)}) = " + " ".join(have[:90]))
+            fm = all_forms(conj, pv)
+            if fm is not None:
+                lines.append(f"SONDE {pv}: absentes = " + " ".join(sorted(f for f in fm if f != pv and (f, pv) not in known)))
         Path(args.diag).write_text("\n".join(lines), encoding="utf-8")
 
     if args.csv:

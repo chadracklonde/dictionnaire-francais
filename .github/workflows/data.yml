@@ -38,6 +38,8 @@ jobs:
                   langs[e.get("lang_code")] = langs.get(e.get("lang_code"), 0) + 1
                   if e.get("lang_code") == "fr":
                       for k in e: keys[k] = keys.get(k, 0) + 1
+                      if e.get("word") == "lire" and e.get("pos") == "verb":
+                          print("::notice::FORMES-LIRE " + json.dumps([f.get("form") for f in e.get("forms", [])], ensure_ascii=False)[:1500])
                       if n < 2:
                           print("::notice::EXEMPLE " + json.dumps(e, ensure_ascii=False)[:900].replace("\n", " "))
                       n += 1
@@ -73,9 +75,10 @@ jobs:
       - name: Vérifier la conjugaison
         working-directory: tools
         run: |
-          python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv --diag ../diag.txt | tee ../rapport.txt
-          echo "::notice::CONJUGAISON $(head -c 600 ../rapport.txt | tr '\n' '¶')"
-          echo "::notice::DIAGNOSTIC $(head -c 6000 ../diag.txt | tr '\n' '¶')"
+          python3 verify_conjugation.py ../dictionnaire.db --csv ../ecarts.csv --diag ../diag.txt --probe organiser,abandonner,aimer,finir,baliser | tee ../rapport.txt
+          echo "::notice::CONJUGAISON $(head -c 600 ../rapport.txt | paste -sd'|')"
+          echo "::notice::DIAGNOSTIC-A $(head -c 2500 ../diag.txt | paste -sd'|')"
+          echo "::notice::DIAGNOSTIC-B $(grep '^SONDE' ../diag.txt | cut -c1-900 | paste -sd'|')"
       - name: Publier la base dans les Releases (import complet seulement)
         if: ${{ inputs.limit == '' }}
         env:

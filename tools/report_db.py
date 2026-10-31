@@ -34,6 +34,12 @@ n = one("SELECT COUNT(*) FROM entries")
 for col in ("gender", "ipa", "etymology"):
     c = one(f"SELECT COUNT(*) FROM entries WHERE {col} IS NOT NULL AND {col}<>''")
     out(f"couverture {col} : {c} / {n}")
+Q_SPACE = "SELECT COUNT(*) FROM forms WHERE norm LIKE '% %'"
+Q_SPACE_EX = "SELECT norm FROM forms WHERE norm LIKE '% %' LIMIT 8"
+Q_APOS = "SELECT COUNT(*) FROM forms WHERE norm LIKE '%''%'"
+out(f"formes avec espace : {one(Q_SPACE)} | exemples : {[r[0] for r in con.execute(Q_SPACE_EX)]}")
+out(f"formes avec apostrophe : {one(Q_APOS)}")
+out(f"formes distinctes (norm) : {one('SELECT COUNT(DISTINCT norm) FROM forms')}")
 try:
     rows = con.execute("SELECT name, SUM(pgsize) FROM dbstat GROUP BY name ORDER BY 2 DESC LIMIT 12").fetchall()
     out("taille par objet : " + ", ".join(f"{a}={b / 1e6:.1f}Mo" for a, b in rows))
@@ -46,4 +52,4 @@ for w in ("manger", "lire", "mangeons", "belles", "ecole"):
     f = con.execute("SELECT COUNT(*) FROM forms WHERE norm=?", (w,)).fetchone()[0]
     out(f"test {w} : entrees={r} formes={f}")
 
-print("::notice::RAPPORT-COMPLET " + " ¶ ".join(lines).replace("\n", " "))
+print("::notice::RAPPORT-COMPLET " + " | ".join(lines).replace("\n", " "))
