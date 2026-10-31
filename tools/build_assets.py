@@ -11,6 +11,7 @@
 import argparse
 import json
 import shutil
+import sqlite3
 from datetime import date
 from pathlib import Path
 
@@ -50,6 +51,13 @@ def main():
         "parts": parts,
         "size": size,
     }
+    con = sqlite3.connect(db)
+    manifest["words"] = con.execute("SELECT COUNT(DISTINCT word) FROM entries").fetchone()[0]
+    manifest["verbs"] = con.execute(
+        "SELECT COUNT(DISTINCT word) FROM entries WHERE pos='verbe' AND is_lemma=1"
+    ).fetchone()[0]
+    con.close()
+    print(f"{manifest['words']} mots, {manifest['verbs']} verbes")
     (out / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     shutil.copyfile(MODELS, ASSETS / "conjugation_models.json")
     print(f"{parts} morceaux ({size / 1_000_000:.1f} Mo) -> {out}")

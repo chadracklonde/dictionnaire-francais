@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'À propos et licences',
+            tooltip: 'À propos',
             icon: const Icon(Icons.info_outline),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const LicensesScreen()),

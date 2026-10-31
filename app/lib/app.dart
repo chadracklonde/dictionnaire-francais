@@ -8,6 +8,9 @@ import 'data/user_store.dart';
 import 'screens/home_screen.dart';
 import 'screens/install_screen.dart';
 
+/// Version affichée dans « À propos » (à garder alignée sur pubspec.yaml).
+const String appVersion = '1.0.0';
+
 /// Services partagés par tous les écrans.
 class AppServices {
   AppServices({required this.repo, required this.user, required this.conjugator});
@@ -45,6 +48,8 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
   double _progress = 0;
   String? _error;
   AppServices? _services;
+  int? _words;
+  int? _verbs;
 
   @override
   void initState() {
@@ -55,6 +60,13 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
   Future<void> _start() async {
     if (_error != null) setState(() => _error = null);
     try {
+      final manifest = await DbInstaller.manifest();
+      if (mounted) {
+        setState(() {
+          _words = manifest['words'] as int?;
+          _verbs = manifest['verbs'] as int?;
+        });
+      }
       await for (final p in DbInstaller.install()) {
         if (!mounted) return;
         setState(() => _progress = p);
@@ -95,7 +107,13 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
       darkTheme: _theme(Brightness.dark),
       themeMode: ThemeMode.system,
       home: services == null
-          ? InstallScreen(progress: _progress, error: _error, onRetry: _start)
+          ? InstallScreen(
+              progress: _progress,
+              error: _error,
+              onRetry: _start,
+              words: _words,
+              verbs: _verbs,
+            )
           : const HomeScreen(),
     );
     if (services == null) return app;

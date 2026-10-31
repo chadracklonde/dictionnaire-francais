@@ -1,7 +1,7 @@
 name: dictionnaire
 description: Dictionnaire français hors ligne (contenu du Wiktionnaire, CC BY-SA 4.0).
 publish_to: none
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -29,3 +29,5 @@ flutter:
   assets:
     - assets/db/
     - assets/conjugation_models.json
+    - assets/icon/book.png
+    - assets/icon/logo.png

@@ -203,6 +203,16 @@ class DictionaryRepository {
     return rows.isEmpty ? null : rows.first['word'] as String;
   }
 
+  /// Chiffres réels de la base : mots distincts et verbes (infinitifs).
+  Future<({int words, int verbs})> stats() async {
+    final w = await _db.rawQuery('SELECT COUNT(DISTINCT word) AS n FROM entries');
+    final v = await _db.rawQuery(
+      "SELECT COUNT(DISTINCT word) AS n FROM entries "
+      "WHERE pos = 'verbe' AND is_lemma = 1",
+    );
+    return (words: w.first['n'] as int, verbs: v.first['n'] as int);
+  }
+
   Future<Map<String, String>> meta() async {
     final rows = await _db.query('meta');
     return {for (final r in rows) r['key'] as String: r['value'] as String};

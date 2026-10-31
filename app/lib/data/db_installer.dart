@@ -16,12 +16,16 @@ class DbInstaller {
     return p.join(dir.path, 'dictionnaire.db');
   }
 
+  /// Contenu de assets/db/manifest.json (version, parties, et si présents
+  /// les chiffres « words » et « verbs » écrits par build_assets.py).
+  static Future<Map<String, dynamic>> manifest() async => json.decode(
+        await rootBundle.loadString('assets/db/manifest.json'),
+      ) as Map<String, dynamic>;
+
   /// Émet la progression de 0.0 à 1.0. Termine tout de suite si la bonne
   /// version est déjà installée.
   static Stream<double> install() async* {
-    final manifest = json.decode(
-      await rootBundle.loadString('assets/db/manifest.json'),
-    ) as Map<String, dynamic>;
+    final manifest = await DbInstaller.manifest();
     final parts = manifest['parts'] as int;
     final version = manifest['version'] as String;
 
