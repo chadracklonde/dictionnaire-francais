@@ -178,11 +178,20 @@ class DictionaryRepository {
     if (isLemma && (posName == 'nom' || posName == 'adjectif')) {
       try {
         final inflRows = await _db.rawQuery(
-          'SELECT kind, form FROM inflections WHERE entry_id = ? ORDER BY form',
+          'SELECT kind, form, rank FROM inflections WHERE entry_id = ? '
+          'ORDER BY rank, form',
           [id],
         );
+        // Formes courantes d'abord ; les variantes rares ou vieillies
+        // seulement s'il n'y en a pas d'autre.
+        final common = <String, List<String>>{};
+        final rare = <String, List<String>>{};
         for (final r in inflRows) {
-          (inflections[r['kind'] as String] ??= []).add(r['form'] as String);
+          final target = (r['rank'] as int) == 0 ? common : rare;
+          (target[r['kind'] as String] ??= []).add(r['form'] as String);
+        }
+        for (final kind in {...common.keys, ...rare.keys}) {
+          inflections[kind] = (common[kind] ?? rare[kind]!).take(3).toList();
         }
       } catch (_) {
         // Base sans table des accords : pas de tableau.

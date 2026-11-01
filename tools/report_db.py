@@ -32,8 +32,9 @@ for t in ("senses", "examples", "relations", "forms", "inflections"):
     out(f"lignes {t} : {one(f'SELECT COUNT(*) FROM {t}')}")
 out("accords par type : " + ", ".join(f"{k}={c}" for k, c in con.execute(
     "SELECT kind, COUNT(*) FROM inflections GROUP BY kind ORDER BY 2 DESC")))
-out("exemples d'accords : " + " ; ".join(f"{w} {k}={f}" for w, k, f in con.execute(
-    "SELECT e.word, i.kind, i.form FROM inflections i JOIN entries e ON e.id=i.entry_id "
+out("accords rares : " + str(one("SELECT COUNT(*) FROM inflections WHERE rank=1")))
+out("exemples d'accords : " + " ; ".join(f"{w} {k}={f}{'*' if r else ''}" for w, k, f, r in con.execute(
+    "SELECT e.word, i.kind, i.form, i.rank FROM inflections i JOIN entries e ON e.id=i.entry_id "
     "WHERE e.word IN ('beau','castélorien','cheval','œil','acteur','heureux') ORDER BY e.word, i.kind")))
 n = one("SELECT COUNT(*) FROM entries")
 for col in ("gender", "ipa", "etymology"):

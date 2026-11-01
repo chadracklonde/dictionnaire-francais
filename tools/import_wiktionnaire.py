@@ -168,19 +168,34 @@ def inflection_kind(gloss: str):
     return None
 
 
+_WEAK_WORDS = re.compile(
+    r"rare|vieilli|désuet|obsolète|archaïque|dialect|régional|populaire|"
+    r"non standard|incorrect|erron|liaison|argot")
+_WEAK_TAGS = {"dated", "archaic", "obsolete", "rare", "dialectal", "regional",
+              "nonstandard", "misspelling", "slang", "colloquial", "informal"}
+
+
 def form_kinds(entry: dict, target: str):
-    """Accords (ms, fs, mp, fp, s, p) que cette forme représente pour [target]."""
-    kinds = set()
+    """Accords que cette forme représente pour [target] : {(genre-nombre, faible)}.
+
+    « faible » : variante rare, vieillie, régionale ou erronée (affichée
+    seulement s'il n'existe pas d'autre forme)."""
+    result = {}
     for sense in entry.get("senses", []):
         refs = sense.get("form_of") or sense.get("alt_of") or []
         words = [r.get("word") if isinstance(r, dict) else r for r in refs]
         if target not in words:
             continue
+        tags = set(sense.get("tags") or []) | set(sense.get("raw_tags") or [])
         for gloss in sense.get("glosses") or []:
             kind = inflection_kind(gloss)
-            if kind:
-                kinds.add(kind)
-    return kinds or {None}
+            if not kind:
+                continue
+            prefix = re.match(r"^((?:\([^)]*\)\s*)*)", (gloss or "").strip().lower()).group(1)
+            weak = bool(_WEAK_WORDS.search(prefix)) or bool(
+                {t.lower() for t in tags} & _WEAK_TAGS)
+            result[kind] = result.get(kind, True) and weak
+    return result or {None: False}
 
 
 def form_of_targets(entry: dict):
@@ -216,7 +231,7 @@ def main():
     con.executescript(SCHEMA.read_text(encoding="utf-8"))
     cur = con.cursor()
 
-    cur.execute("CREATE TEMP TABLE tmp_forms(form TEXT, norm TEXT, lemma TEXT, pos TEXT, kind TEXT)")
+    cur.execute("CREATE TEMP TABLE tmp_forms(form TEXT, norm TEXT, lemma TEXT, pos TEXT, kind TEXT, rank INTEGER)")
     own_forms = []          # (forme, entry_id)
     pending_forms = []      # (forme, lemme, catégorie) -> table temporaire
     pending_relations = []
@@ -240,7 +255,7 @@ def main():
         cur.executemany(
             "INSERT INTO relations(entry_id,type,word) VALUES (?,?,?)",
             pending_relations)
-        cur.executemany("INSERT INTO tmp_forms VALUES (?,?,?,?,?)", pending_forms)
+        cur.executemany("INSERT INTO tmp_forms VALUES (?,?,?,?,?,?)", pending_forms)
         cur.executemany(
             "INSERT OR IGNORE INTO forms(norm,entry_id,form) VALUES (?,?,?)",
             own_forms)
@@ -286,9 +301,9 @@ def main():
                     redirects += 1
                     continue
                 for target in set(targets):
-                    for kind in form_kinds(entry, target):
+                    for kind, weak in form_kinds(entry, target).items():
                         pending_forms.append(
-                            (word, normalize(word), target, pos, kind))
+                            (word, normalize(word), target, pos, kind, int(weak)))
                 redirects += 1
                 if len(pending_forms) >= BATCH:
                     flush()
@@ -367,9 +382,9 @@ def main():
         ) WHERE id IS NOT NULL
     """)
     cur.execute("""
-        INSERT OR IGNORE INTO inflections(entry_id, kind, form)
-        SELECT id, kind, form FROM (
-            SELECT t.form AS form, t.kind AS kind,
+        INSERT OR IGNORE INTO inflections(entry_id, kind, form, rank)
+        SELECT id, kind, form, rank FROM (
+            SELECT t.form AS form, t.kind AS kind, t.rank AS rank,
                    COALESCE(
                      (SELECT e.id FROM entries e WHERE e.word = t.lemma AND e.pos = t.pos LIMIT 1),
                      (SELECT e.id FROM entries e WHERE e.word = t.lemma LIMIT 1)

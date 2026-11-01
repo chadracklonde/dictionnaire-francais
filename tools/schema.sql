@@ -68,6 +68,7 @@ CREATE TABLE inflections (
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     kind     TEXT NOT NULL,
     form     TEXT NOT NULL,
+    rank     INTEGER NOT NULL DEFAULT 0,  -- 1 = variante rare, vieillie ou régionale
     PRIMARY KEY (entry_id, kind, form)
 ) WITHOUT ROWID;
 
