@@ -66,7 +66,7 @@ class _TappableTextState extends State<TappableText> {
   @override
   Widget build(BuildContext context) {
     _disposeRecognizers();
-    final link = TextStyle(color: Theme.of(context).colorScheme.primary);
+    final link = TextStyle(color: Theme.of(context).colorScheme.secondary);
     final text = widget.text;
     final spans = <InlineSpan>[];
     var last = 0;

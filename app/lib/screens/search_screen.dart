@@ -62,8 +62,16 @@ class _SearchScreenState extends State<SearchScreen> {
           controller: _controller,
           autofocus: true,
           textInputAction: TextInputAction.search,
-          decoration: const InputDecoration(
+          style: TextStyle(
+              color: Theme.of(context).appBarTheme.foregroundColor ??
+                  Theme.of(context).colorScheme.onSurface),
+          cursorColor: Theme.of(context).appBarTheme.foregroundColor,
+          decoration: InputDecoration(
             hintText: 'Rechercher un mot…',
+            hintStyle: TextStyle(
+                color: (Theme.of(context).appBarTheme.foregroundColor ??
+                        Theme.of(context).colorScheme.onSurface)
+                    .withOpacity(0.8)),
             border: InputBorder.none,
           ),
           onChanged: (text) {

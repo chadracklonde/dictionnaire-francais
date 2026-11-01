@@ -1,5 +1,6 @@
 import 'package:dictionnaire_engine/conjugation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/db_installer.dart';
@@ -87,13 +88,51 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
     }
   }
 
+  /// Identité visuelle : rouge du logo, or et bleu du livre. Chaque couleur de
+  /// texte reste à 4,5:1 minimum (WCAG AA) sur ses fonds, en clair comme en sombre.
   ThemeData _theme(Brightness brightness) {
+    final dark = brightness == Brightness.dark;
+    final base = ColorScheme.fromSeed(
+      seedColor: const Color(0xFFAF0B18),
+      brightness: brightness,
+    );
+    final scheme = dark
+        ? base.copyWith(
+            primary: const Color(0xFFFFB3AE),
+            onPrimary: const Color(0xFF5F0010),
+            primaryContainer: const Color(0xFF8C0A17),
+            onPrimaryContainer: const Color(0xFFFFDAD6),
+            secondary: const Color(0xFFA5C8F2),
+            onSecondary: const Color(0xFF07304F),
+            tertiary: const Color(0xFFF2B632),
+            onTertiary: const Color(0xFF3F2E00),
+            tertiaryContainer: const Color(0xFF5B4300),
+            onTertiaryContainer: const Color(0xFFFFDEA0),
+          )
+        : base.copyWith(
+            primary: const Color(0xFFA50E1A),
+            onPrimary: Colors.white,
+            primaryContainer: const Color(0xFFFFDAD6),
+            onPrimaryContainer: const Color(0xFF410004),
+            secondary: const Color(0xFF1C486F),
+            onSecondary: Colors.white,
+            tertiary: const Color(0xFF6F5000),
+            onTertiary: Colors.white,
+            tertiaryContainer: const Color(0xFFF2B632),
+            onTertiaryContainer: const Color(0xFF2B1D00),
+          );
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF1B5E8C),
-        brightness: brightness,
-      ),
+      colorScheme: scheme,
+      // Entête rouge du logo en thème clair (blanc sur rouge : 7,8:1).
+      appBarTheme: dark
+          ? null
+          : const AppBarTheme(
+              backgroundColor: Color(0xFFA50E1A),
+              foregroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+            ),
     );
   }
 

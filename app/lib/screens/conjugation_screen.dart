@@ -23,6 +23,14 @@ class ConjugationScreen extends StatelessWidget {
           title: Text(title),
           bottom: TabBar(
             isScrollable: true,
+            // Sur l'entête rouge (thème clair) : blanc et or, contraste > 4,5:1.
+            labelColor: theme.appBarTheme.foregroundColor,
+            unselectedLabelColor: theme.appBarTheme.foregroundColor == null
+                ? null
+                : const Color(0xFFF7D9DC),
+            indicatorColor: theme.appBarTheme.foregroundColor == null
+                ? null
+                : const Color(0xFFF2B632),
             tabs: [for (final m in moods) Tab(text: moodLabels[m] ?? m)],
           ),
         ),
