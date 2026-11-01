@@ -65,7 +65,17 @@ class InstallScreen extends StatelessWidget {
                       ),
                     ),
                     const Text(
-                      'et Conjugaison',
+                      '& Conjugaison',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 38,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                    const Text(
+                      'en Français',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _gold,
