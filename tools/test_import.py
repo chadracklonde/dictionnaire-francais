@@ -34,6 +34,10 @@ rows = q("SELECT e.word FROM forms f JOIN entries e ON e.id=f.entry_id "
          "WHERE f.norm = 'belles'")
 check("forme : belles -> beau", ("beau",) in rows, str(rows))
 
+rows = q("SELECT i.kind, i.form FROM inflections i JOIN entries e ON e.id=i.entry_id "
+         "WHERE e.word = 'beau'")
+check("accord : belles = féminin pluriel de beau", ("fp", "belles") in rows, str(rows))
+
 # 4. Définitions, exemples, registre, domaine
 rows = q("SELECT s.ord, s.register FROM senses s JOIN entries e ON e.id=s.entry_id "
          "WHERE e.word='manger' ORDER BY s.ord")

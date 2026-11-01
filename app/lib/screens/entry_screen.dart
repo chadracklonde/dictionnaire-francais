@@ -309,6 +309,10 @@ class _EntryCard extends StatelessWidget {
                 ],
               ),
             ],
+            if (entry.inflections.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _InflectionTable(entry: entry),
+            ],
             const SizedBox(height: 12),
             for (var i = 0; i < entry.senses.length; i++)
               _SenseTile(number: i + 1, sense: entry.senses[i]),
@@ -424,6 +428,67 @@ class _SenseTileState extends State<_SenseTile> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Tableau des accords : singulier/pluriel, masculin/féminin.
+class _InflectionTable extends StatelessWidget {
+  const _InflectionTable({required this.entry});
+
+  final EntryData entry;
+
+  List<String> _k(String key) => entry.inflections[key] ?? const [];
+
+  String _cell(List<String> forms) => forms.isEmpty ? '—' : forms.join(', ');
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fs = _k('fs');
+    final fp = _k('fp');
+    final mp = _k('mp').isNotEmpty ? _k('mp') : _k('p');
+    final femPlural = fp.isNotEmpty ? fp : (fs.isNotEmpty ? _k('p') : <String>[]);
+    final hasFem = fs.isNotEmpty || fp.isNotEmpty;
+    if (!hasFem && mp.isEmpty) return const SizedBox.shrink();
+
+    Widget cell(String text, {bool bold = false}) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Text(text,
+              style: bold
+                  ? theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w700)
+                  : theme.textTheme.bodyMedium),
+        );
+
+    final rows = <TableRow>[
+      TableRow(children: [
+        if (hasFem) cell(''),
+        cell('Singulier', bold: true),
+        cell('Pluriel', bold: true),
+      ]),
+      if (hasFem) ...[
+        TableRow(children: [
+          cell('Masculin', bold: true),
+          cell(entry.word),
+          cell(_cell(mp)),
+        ]),
+        TableRow(children: [
+          cell('Féminin', bold: true),
+          cell(_cell(fs)),
+          cell(_cell(femPlural)),
+        ]),
+      ] else
+        TableRow(children: [cell(entry.word), cell(_cell(mp))]),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Table(
+        defaultColumnWidth: const IntrinsicColumnWidth(),
+        border: TableBorder.all(color: theme.colorScheme.outlineVariant),
+        children: rows,
       ),
     );
   }

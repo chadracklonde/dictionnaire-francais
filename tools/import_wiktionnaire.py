@@ -146,6 +146,43 @@ def sense_domain(sense: dict):
     return ", ".join(topics) if topics else None
 
 
+_KIND_PATTERNS = [
+    (re.compile(r"^masculin et féminin plurie"), "p"),
+    (re.compile(r"^féminin plurie"), "fp"),
+    (re.compile(r"^masculin plurie"), "mp"),
+    (re.compile(r"^féminin singulier"), "fs"),
+    (re.compile(r"^masculin singulier"), "ms"),
+    (re.compile(r"^féminin\b"), "fs"),
+    (re.compile(r"^masculin\b"), "ms"),
+    (re.compile(r"^plurie"), "p"),
+    (re.compile(r"^singulier\b"), "s"),
+]
+
+
+def inflection_kind(gloss: str):
+    """« Féminin pluriel de beau. » -> 'fp' ; None si ce n'est pas un accord."""
+    g = re.sub(r"^(\([^)]*\)\s*)+", "", (gloss or "").strip().lower())
+    for pattern, kind in _KIND_PATTERNS:
+        if pattern.match(g):
+            return kind
+    return None
+
+
+def form_kinds(entry: dict, target: str):
+    """Accords (ms, fs, mp, fp, s, p) que cette forme représente pour [target]."""
+    kinds = set()
+    for sense in entry.get("senses", []):
+        refs = sense.get("form_of") or sense.get("alt_of") or []
+        words = [r.get("word") if isinstance(r, dict) else r for r in refs]
+        if target not in words:
+            continue
+        for gloss in sense.get("glosses") or []:
+            kind = inflection_kind(gloss)
+            if kind:
+                kinds.add(kind)
+    return kinds or {None}
+
+
 def form_of_targets(entry: dict):
     """Lemmes visés si toutes les acceptions sont des formes fléchies."""
     senses = entry.get("senses", [])
@@ -179,7 +216,7 @@ def main():
     con.executescript(SCHEMA.read_text(encoding="utf-8"))
     cur = con.cursor()
 
-    cur.execute("CREATE TEMP TABLE tmp_forms(form TEXT, norm TEXT, lemma TEXT, pos TEXT)")
+    cur.execute("CREATE TEMP TABLE tmp_forms(form TEXT, norm TEXT, lemma TEXT, pos TEXT, kind TEXT)")
     own_forms = []          # (forme, entry_id)
     pending_forms = []      # (forme, lemme, catégorie) -> table temporaire
     pending_relations = []
@@ -203,7 +240,7 @@ def main():
         cur.executemany(
             "INSERT INTO relations(entry_id,type,word) VALUES (?,?,?)",
             pending_relations)
-        cur.executemany("INSERT INTO tmp_forms VALUES (?,?,?,?)", pending_forms)
+        cur.executemany("INSERT INTO tmp_forms VALUES (?,?,?,?,?)", pending_forms)
         cur.executemany(
             "INSERT OR IGNORE INTO forms(norm,entry_id,form) VALUES (?,?,?)",
             own_forms)
@@ -249,7 +286,9 @@ def main():
                     redirects += 1
                     continue
                 for target in set(targets):
-                    pending_forms.append((word, normalize(word), target, pos))
+                    for kind in form_kinds(entry, target):
+                        pending_forms.append(
+                            (word, normalize(word), target, pos, kind))
                 redirects += 1
                 if len(pending_forms) >= BATCH:
                     flush()
@@ -325,6 +364,18 @@ def main():
                      (SELECT e.id FROM entries e WHERE e.word = t.lemma LIMIT 1)
                    ) AS id
             FROM tmp_forms t
+        ) WHERE id IS NOT NULL
+    """)
+    cur.execute("""
+        INSERT OR IGNORE INTO inflections(entry_id, kind, form)
+        SELECT id, kind, form FROM (
+            SELECT t.form AS form, t.kind AS kind,
+                   COALESCE(
+                     (SELECT e.id FROM entries e WHERE e.word = t.lemma AND e.pos = t.pos LIMIT 1),
+                     (SELECT e.id FROM entries e WHERE e.word = t.lemma LIMIT 1)
+                   ) AS id
+            FROM tmp_forms t
+            WHERE t.kind IS NOT NULL AND t.pos IN ('nom', 'adjectif')
         ) WHERE id IS NOT NULL
     """)
     cur.execute("DROP TABLE tmp_forms")

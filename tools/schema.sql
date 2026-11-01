@@ -62,6 +62,15 @@ CREATE TABLE forms (
     PRIMARY KEY (norm, entry_id, form)
 ) WITHOUT ROWID;
 
+-- Accords des noms et adjectifs (tableau singulier/pluriel, masculin/féminin) :
+-- kind = ms, fs, mp, fp (adjectifs, noms variables), s, p (noms).
+CREATE TABLE inflections (
+    entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
+    kind     TEXT NOT NULL,
+    form     TEXT NOT NULL,
+    PRIMARY KEY (entry_id, kind, form)
+) WITHOUT ROWID;
+
 -- Recherche instantanée : préfixes + mots, sans accents ni casse
 CREATE VIRTUAL TABLE search_fts USING fts5(
     word,

@@ -39,6 +39,7 @@ class EntryData {
     this.etymology,
     this.source,
     this.sourceUrl,
+    this.inflections = const {},
   });
 
   final int id;
@@ -57,4 +58,7 @@ class EntryData {
 
   /// Pour une forme fléchie : les mots dont elle dérive.
   final List<String> lemmas;
+
+  /// Accords : ms, fs, mp, fp, s, p -> formes (noms et adjectifs).
+  final Map<String, List<String>> inflections;
 }

@@ -28,8 +28,13 @@ out(f"entrees : {one('SELECT COUNT(*) FROM entries')}"
     f" | mots distincts : {one('SELECT COUNT(DISTINCT word) FROM entries')}"
     f" | lemmes : {one('SELECT COUNT(*) FROM entries WHERE is_lemma=1')}"
     f" | verbes (lemmes) : {one(VERBES)}")
-for t in ("senses", "examples", "relations", "forms"):
+for t in ("senses", "examples", "relations", "forms", "inflections"):
     out(f"lignes {t} : {one(f'SELECT COUNT(*) FROM {t}')}")
+out("accords par type : " + ", ".join(f"{k}={c}" for k, c in con.execute(
+    "SELECT kind, COUNT(*) FROM inflections GROUP BY kind ORDER BY 2 DESC")))
+out("exemples d'accords : " + " ; ".join(f"{w} {k}={f}" for w, k, f in con.execute(
+    "SELECT e.word, i.kind, i.form FROM inflections i JOIN entries e ON e.id=i.entry_id "
+    "WHERE e.word IN ('beau','castélorien','cheval','œil','acteur','heureux') ORDER BY e.word, i.kind")))
 n = one("SELECT COUNT(*) FROM entries")
 for col in ("gender", "ipa", "etymology"):
     c = one(f"SELECT COUNT(*) FROM entries WHERE {col} IS NOT NULL AND {col}<>''")

@@ -173,6 +173,22 @@ class DictionaryRepository {
       lemmas = [for (final r in lemmaRows) r['word'] as String];
     }
 
+    final inflections = <String, List<String>>{};
+    final posName = row['pos'] as String?;
+    if (isLemma && (posName == 'nom' || posName == 'adjectif')) {
+      try {
+        final inflRows = await _db.rawQuery(
+          'SELECT kind, form FROM inflections WHERE entry_id = ? ORDER BY form',
+          [id],
+        );
+        for (final r in inflRows) {
+          (inflections[r['kind'] as String] ??= []).add(r['form'] as String);
+        }
+      } catch (_) {
+        // Base sans table des accords : pas de tableau.
+      }
+    }
+
     return EntryData(
       id: id,
       word: word,
@@ -186,6 +202,7 @@ class DictionaryRepository {
       senses: senses,
       relations: relations,
       lemmas: lemmas,
+      inflections: inflections,
     );
   }
 
