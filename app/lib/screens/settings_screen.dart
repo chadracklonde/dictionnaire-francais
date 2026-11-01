@@ -27,6 +27,7 @@ class SettingsScreen extends StatelessWidget {
               Text('Thème', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               SegmentedButton<String>(
+                showSelectedIcon: false,
                 segments: const [
                   ButtonSegment(value: 'system', label: Text('Auto')),
                   ButtonSegment(value: 'light', label: Text('Clair')),
@@ -39,6 +40,7 @@ class SettingsScreen extends StatelessWidget {
               Text('Taille du texte', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               SegmentedButton<double>(
+                showSelectedIcon: false,
                 segments: const [
                   ButtonSegment(value: 0.9, label: Text('Petit')),
                   ButtonSegment(value: 1.0, label: Text('Normal')),

@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
+import '../data/domain_labels.dart';
 import '../data/models.dart';
 import '../data/speech.dart';
 import 'conjugation_screen.dart';
@@ -441,7 +442,7 @@ class _SenseTileState extends State<_SenseTile> {
     final sense = widget.sense;
     final tags = [
       if (sense.register != null) sense.register!,
-      if (sense.domain != null) sense.domain!,
+      if (sense.domain != null) domainFr(sense.domain!),
     ];
     final examples = sense.examples.take(3).toList();
     return Padding(

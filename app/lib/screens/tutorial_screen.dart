@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 import '../data/user_store.dart';
 
@@ -151,7 +152,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
       onPopInvoked: (didPop) {
         if (!didPop) _finish();
       },
-      child: Scaffold(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        // Pas d'entête ici : icônes de la barre d'état sombres sur fond clair.
+        value: theme.brightness == Brightness.light
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: Scaffold(
         body: SafeArea(
           child: Column(
             children: [
@@ -210,6 +216,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
