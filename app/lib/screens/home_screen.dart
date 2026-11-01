@@ -7,6 +7,7 @@ import '../data/models.dart';
 import '../data/user_store.dart';
 import 'entry_screen.dart';
 import 'favorites_screen.dart';
+import 'index_screen.dart';
 import 'licenses_screen.dart';
 
 void openWord(BuildContext context, String word) {
@@ -215,6 +216,30 @@ class _HomeContent extends StatelessWidget {
             ],
           ),
         ],
+        const SizedBox(height: 24),
+        Text('Index alphabétique', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final letter in alphabet)
+              SizedBox(
+                width: 48,
+                height: 44,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (_) => IndexScreen(letter: letter)),
+                  ),
+                  child: Text(letter,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600)),
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }

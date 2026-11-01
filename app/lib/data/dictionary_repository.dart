@@ -213,6 +213,64 @@ class DictionaryRepository {
     return (words: w.first['n'] as int, verbs: v.first['n'] as int);
   }
 
+  /// Parcours alphabétique : les mots dont la forme normalisée commence par
+  /// [prefix], dans l'ordre du dictionnaire (accents ignorés). Pagination par
+  /// clé ([afterNorm]/[afterWord]) : rapide même sur 500 000 entrées.
+  Future<({List<SearchHit> hits, String? lastNorm, String? lastWord, bool more})>
+      browse(
+    String prefix, {
+    String? afterNorm,
+    String? afterWord,
+    int limit = 80,
+    bool properNouns = false,
+    bool expressions = false,
+  }) async {
+    final p = normalize(prefix.trim());
+    final where = <String>['is_lemma = 1'];
+    final args = <Object?>[];
+    if (!properNouns) where.add("pos != 'nom propre'");
+    if (!expressions) where.add("word NOT LIKE '% %'");
+    if (p.isNotEmpty) {
+      where.add('norm >= ? AND norm < ?');
+      args..add(p)..add('$p\uffff');
+    }
+    if (afterNorm != null) {
+      where.add('(norm > ? OR (norm = ? AND word > ?))');
+      args..add(afterNorm)..add(afterNorm)..add(afterWord ?? '');
+    }
+    final rows = await _db.rawQuery(
+      'SELECT word, norm, pos FROM entries WHERE ${where.join(' AND ')} '
+      'ORDER BY norm, word LIMIT ?',
+      [...args, limit],
+    );
+    final hits = <SearchHit>[];
+    final posByWord = <String, Set<String>>{};
+    for (final r in rows) {
+      final word = r['word'] as String;
+      final pos = r['pos'] as String?;
+      final set = posByWord[word];
+      if (set == null) {
+        posByWord[word] = {if (pos != null && pos.isNotEmpty) pos};
+        hits.add(SearchHit(word: word));
+      } else if (pos != null && pos.isNotEmpty) {
+        set.add(pos);
+      }
+    }
+    final result = [
+      for (final h in hits)
+        SearchHit(
+          word: h.word,
+          pos: posByWord[h.word]!.isEmpty ? null : posByWord[h.word]!.join(' · '),
+        ),
+    ];
+    return (
+      hits: result,
+      lastNorm: rows.isEmpty ? afterNorm : rows.last['norm'] as String,
+      lastWord: rows.isEmpty ? afterWord : rows.last['word'] as String,
+      more: rows.length == limit,
+    );
+  }
+
   Future<Map<String, String>> meta() async {
     final rows = await _db.query('meta');
     return {for (final r in rows) r['key'] as String: r['value'] as String};
