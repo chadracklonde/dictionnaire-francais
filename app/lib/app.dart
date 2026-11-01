@@ -9,7 +9,7 @@ import 'screens/home_screen.dart';
 import 'screens/install_screen.dart';
 
 /// Version affichée dans « À propos » (à garder alignée sur pubspec.yaml).
-const String appVersion = '1.0.0';
+const String appVersion = '1.1.0';
 
 /// Services partagés par tous les écrans.
 class AppServices {
@@ -97,15 +97,30 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final services = _services;
-    final app = MaterialApp(
+  static ThemeMode _mode(String value) => switch (value) {
+        'light' => ThemeMode.light,
+        'dark' => ThemeMode.dark,
+        _ => ThemeMode.system,
+      };
+
+  Widget _app(AppServices? services) {
+    final user = services?.user;
+    return MaterialApp(
       title: 'Dictionnaire et Conjugaison',
       debugShowCheckedModeBanner: false,
       theme: _theme(Brightness.light),
       darkTheme: _theme(Brightness.dark),
-      themeMode: ThemeMode.system,
+      themeMode: _mode(user?.themeMode ?? 'system'),
+      builder: (context, child) {
+        // Taille du texte choisie, en plus de celle du système.
+        final system = MediaQuery.textScalerOf(context).scale(1.0);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(system * (user?.textScale ?? 1.0)),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: services == null
           ? InstallScreen(
               progress: _progress,
@@ -116,7 +131,16 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
             )
           : const HomeScreen(),
     );
-    if (services == null) return app;
-    return AppScope(services: services, child: app);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final services = _services;
+    if (services == null) return _app(null);
+    return ListenableBuilder(
+      listenable: services.user,
+      builder: (context, _) =>
+          AppScope(services: services, child: _app(services)),
+    );
   }
 }

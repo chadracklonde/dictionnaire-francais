@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
@@ -26,12 +28,44 @@ class EntryScreen extends StatefulWidget {
 
 class _EntryScreenState extends State<EntryScreen> {
   late final Future<List<EntryData>> _entries;
+  List<EntryData> _loaded = const [];
+
+  /// Texte de la fiche à copier ou partager, avec la mention de la source.
+  String _plainText() {
+    final b = StringBuffer();
+    for (final e in _loaded) {
+      b.write(e.word);
+      if (e.pos != null) b.write(' (${e.pos})');
+      b.writeln();
+      for (var i = 0; i < e.senses.length && i < 8; i++) {
+        b.writeln('${i + 1}. ${e.senses[i].definition}');
+      }
+      b.writeln();
+    }
+    b.write('— Dictionnaire et Conjugaison · Wiktionnaire (CC BY-SA 4.0)');
+    return b.toString();
+  }
+
+  Future<void> _onMenu(String action) async {
+    if (_loaded.isEmpty) return;
+    final text = _plainText();
+    if (action == 'copy') {
+      final messenger = ScaffoldMessenger.of(context);
+      await Clipboard.setData(ClipboardData(text: text));
+      messenger.showSnackBar(const SnackBar(content: Text('Définition copiée.')));
+    } else {
+      await Share.share(text, subject: widget.word);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     final services = AppScope.of(context);
-    _entries = services.repo.entriesFor(widget.word);
+    _entries = services.repo.entriesFor(widget.word).then((entries) {
+      _loaded = entries;
+      return entries;
+    });
     // Après la construction : addHistory notifie d'autres écrans (accueil).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       services.user.addHistory(widget.word);
@@ -59,6 +93,14 @@ class _EntryScreenState extends State<EntryScreen> {
                 ));
               }
             },
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Copier ou partager',
+            onSelected: _onMenu,
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'copy', child: Text('Copier la définition')),
+              PopupMenuItem(value: 'share', child: Text('Partager')),
+            ],
           ),
           ListenableBuilder(
             listenable: user,
@@ -180,7 +222,7 @@ class _EntryCard extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 4,
                   children: [
-                    for (final word in entry.relations[type]!.take(30))
+                    for (final word in entry.relations[type]!.take(60))
                       ActionChip(
                         label: Text(word),
                         onPressed: () => openWord(context, word),

@@ -13,6 +13,26 @@ class UserStore extends ChangeNotifier {
   final List<String> favorites;
   final List<String> history;
 
+  /// Réglages : thème (system, light, dark), taille du texte, rappel quotidien.
+  String get themeMode => _prefs.getString('themeMode') ?? 'system';
+  double get textScale => _prefs.getDouble('textScale') ?? 1.0;
+  bool get dailyWord => _prefs.getBool('dailyWord') ?? false;
+
+  Future<void> setThemeMode(String value) async {
+    await _prefs.setString('themeMode', value);
+    notifyListeners();
+  }
+
+  Future<void> setTextScale(double value) async {
+    await _prefs.setDouble('textScale', value);
+    notifyListeners();
+  }
+
+  Future<void> setDailyWord(bool value) async {
+    await _prefs.setBool('dailyWord', value);
+    notifyListeners();
+  }
+
   bool isFavorite(String word) => favorites.contains(word);
 
   Future<void> toggleFavorite(String word) async {

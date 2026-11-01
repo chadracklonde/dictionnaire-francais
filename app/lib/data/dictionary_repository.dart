@@ -362,6 +362,65 @@ class DictionaryRepository {
     );
   }
 
+  /// Recherche par motif (mots croisés, Scrabble) : « ? » ou « _ » = une
+  /// lettre, « * » = plusieurs lettres (ou aucune). Accents ignorés.
+  /// Retourne aussi la clé de reprise pour la page suivante.
+  Future<({List<SearchHit> hits, String? lastNorm, String? lastWord, bool more})>
+      matchPattern(
+    String pattern, {
+    String? afterNorm,
+    String? afterWord,
+    int limit = 100,
+  }) async {
+    final buf = StringBuffer();
+    for (final rune in normalize(pattern.trim()).runes) {
+      final ch = String.fromCharCode(rune);
+      if (ch == '_' || ch == '?' || ch == '.') {
+        buf.write('?');
+      } else if (ch == '*') {
+        buf.write('*');
+      } else if (RegExp(r"[a-z0-9'-]").hasMatch(ch)) {
+        buf.write(ch);
+      }
+    }
+    final glob = buf.toString();
+    if (glob.replaceAll('*', '').isEmpty) {
+      return (hits: const <SearchHit>[], lastNorm: null, lastWord: null, more: false);
+    }
+    final where = <String>[
+      'is_lemma = 1',
+      "pos != 'nom propre'",
+      "word NOT LIKE '% %'",
+      'norm GLOB ?',
+    ];
+    final args = <Object?>[glob];
+    if (!glob.contains('*')) {
+      where.add('length(norm) = ?');
+      args.add(glob.length);
+    }
+    if (afterNorm != null) {
+      where.add('(norm > ? OR (norm = ? AND word > ?))');
+      args..add(afterNorm)..add(afterNorm)..add(afterWord ?? '');
+    }
+    final rows = await _db.rawQuery(
+      'SELECT word, norm, pos FROM entries WHERE ${where.join(' AND ')} '
+      'ORDER BY norm, word LIMIT ?',
+      [...args, limit],
+    );
+    final seen = <String>{};
+    final hits = <SearchHit>[
+      for (final r in rows)
+        if (seen.add(r['word'] as String))
+          SearchHit(word: r['word'] as String, pos: _joinPos(r['pos'])),
+    ];
+    return (
+      hits: hits,
+      lastNorm: rows.isEmpty ? afterNorm : rows.last['norm'] as String,
+      lastWord: rows.isEmpty ? afterWord : rows.last['word'] as String,
+      more: rows.length == limit,
+    );
+  }
+
   Future<Map<String, String>> meta() async {
     final rows = await _db.query('meta');
     return {for (final r in rows) r['key'] as String: r['value'] as String};

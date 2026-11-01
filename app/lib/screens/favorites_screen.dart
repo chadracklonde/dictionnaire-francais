@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app.dart';
 import 'home_screen.dart';
+import 'review_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -18,6 +19,22 @@ class FavoritesScreen extends StatelessWidget {
             tabs: [Tab(text: 'Favoris'), Tab(text: 'Historique')],
           ),
           actions: [
+            IconButton(
+              tooltip: 'Réviser mes favoris',
+              icon: const Icon(Icons.school_outlined),
+              onPressed: () {
+                if (user.favorites.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text(
+                        'Ajoutez d\'abord des mots en favoris (étoile sur la fiche).'),
+                  ));
+                  return;
+                }
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => ReviewScreen(words: List.of(user.favorites)),
+                ));
+              },
+            ),
             IconButton(
               tooltip: 'Effacer l\'historique',
               icon: const Icon(Icons.delete_outline),

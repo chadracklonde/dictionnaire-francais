@@ -8,7 +8,9 @@ import '../data/user_store.dart';
 import 'entry_screen.dart';
 import 'favorites_screen.dart';
 import 'index_screen.dart';
-import 'licenses_screen.dart';
+import 'pattern_screen.dart';
+import 'review_screen.dart';
+import 'settings_screen.dart';
 
 void openWord(BuildContext context, String word) {
   Navigator.of(context).push(
@@ -91,10 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'À propos',
-            icon: const Icon(Icons.info_outline),
+            tooltip: 'Réglages',
+            icon: const Icon(Icons.settings_outlined),
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const LicensesScreen()),
+              MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
             ),
           ),
         ],
@@ -265,6 +267,38 @@ class _HomeContent extends StatelessWidget {
             ],
           ),
         ],
+        const SizedBox(height: 24),
+        Text('Outils', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ActionChip(
+              avatar: const Icon(Icons.grid_view_rounded, size: 18),
+              label: const Text('Recherche par motif'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const PatternScreen()),
+              ),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.school_outlined, size: 18),
+              label: const Text('Réviser mes favoris'),
+              onPressed: () {
+                if (user.favorites.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text(
+                        'Ajoutez d\'abord des mots en favoris (étoile sur la fiche).'),
+                  ));
+                  return;
+                }
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => ReviewScreen(words: List.of(user.favorites)),
+                ));
+              },
+            ),
+          ],
+        ),
         const SizedBox(height: 24),
         Text('Index alphabétique', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
