@@ -99,7 +99,8 @@ jobs:
           dart run flutter_launcher_icons -f icons_config/android.yaml
       - name: Analyse
         working-directory: app
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        run: |
+          flutter analyze --no-fatal-infos --no-fatal-warnings > analyse.txt 2>&1 || { echo "::error::ANALYSE $(grep -E '^ *error' analyse.txt | head -8 | sed 's/^ *//' | paste -sd'|' | cut -c1-1500)"; exit 1; }
       - name: APK
         working-directory: app
         run: flutter build apk --release
