@@ -8,6 +8,8 @@ import '../data/models.dart';
 import '../data/speech.dart';
 import 'conjugation_screen.dart';
 import 'home_screen.dart';
+import 'notes_screen.dart';
+import 'tappable_text.dart';
 
 const Map<String, String> _relationLabels = {
   'synonyme': 'Synonymes',
@@ -46,16 +48,29 @@ class _EntryScreenState extends State<EntryScreen> {
     return b.toString();
   }
 
-  Future<void> _onMenu(String action) async {
+  Future<void> _copy() async {
     if (_loaded.isEmpty) return;
-    final text = _plainText();
-    if (action == 'copy') {
-      final messenger = ScaffoldMessenger.of(context);
-      await Clipboard.setData(ClipboardData(text: text));
-      messenger.showSnackBar(const SnackBar(content: Text('Définition copiée.')));
-    } else {
-      await Share.share(text, subject: widget.word);
+    final messenger = ScaffoldMessenger.of(context);
+    await Clipboard.setData(ClipboardData(text: _plainText()));
+    messenger.showSnackBar(const SnackBar(content: Text('Définition copiée.')));
+  }
+
+  Future<void> _share() async {
+    if (_loaded.isEmpty) return;
+    await Share.share(_plainText(), subject: widget.word);
+  }
+
+  Future<void> _random() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final word = await AppScope.of(context).repo.randomWord();
+    if (!mounted) return;
+    if (word == null) {
+      messenger.showSnackBar(const SnackBar(content: Text('Aucun mot trouvé.')));
+      return;
     }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => EntryScreen(word: word)),
+    );
   }
 
   @override
@@ -94,13 +109,10 @@ class _EntryScreenState extends State<EntryScreen> {
               }
             },
           ),
-          PopupMenuButton<String>(
-            tooltip: 'Copier ou partager',
-            onSelected: _onMenu,
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'copy', child: Text('Copier la définition')),
-              PopupMenuItem(value: 'share', child: Text('Partager')),
-            ],
+          IconButton(
+            tooltip: 'Copier la définition',
+            icon: const Icon(Icons.copy_outlined),
+            onPressed: _copy,
           ),
           ListenableBuilder(
             listenable: user,
@@ -115,6 +127,35 @@ class _EntryScreenState extends State<EntryScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: BottomAppBar(
+        height: 56,
+        padding: EdgeInsets.zero,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              tooltip: 'Mot au hasard',
+              icon: const Icon(Icons.shuffle),
+              onPressed: _random,
+            ),
+            IconButton(
+              tooltip: 'Partager',
+              icon: const Icon(Icons.share_outlined),
+              onPressed: _share,
+            ),
+            ListenableBuilder(
+              listenable: user,
+              builder: (context, _) => IconButton(
+                tooltip: 'Ma note',
+                icon: Icon(user.noteFor(widget.word) == null
+                    ? Icons.note_add_outlined
+                    : Icons.sticky_note_2),
+                onPressed: () => editNote(context, widget.word),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: FutureBuilder<List<EntryData>>(
         future: _entries,
         builder: (context, snapshot) {
@@ -128,10 +169,36 @@ class _EntryScreenState extends State<EntryScreen> {
           if (entries.isEmpty) {
             return Center(child: Text('« ${widget.word} » est introuvable.'));
           }
+          final theme = Theme.of(context);
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              ListenableBuilder(
+                listenable: user,
+                builder: (context, _) {
+                  final note = user.noteFor(widget.word);
+                  if (note == null) return const SizedBox.shrink();
+                  return Card(
+                    color: theme.colorScheme.tertiaryContainer,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: ListTile(
+                      leading: const Icon(Icons.sticky_note_2_outlined),
+                      title: Text(note),
+                      onTap: () => editNote(context, widget.word),
+                    ),
+                  );
+                },
+              ),
               for (final entry in entries) _EntryCard(entry: entry),
+              Padding(
+                padding: const EdgeInsets.only(top: 4, bottom: 8),
+                child: Text(
+                  'Ce texte est extrait du Wiktionnaire et il est disponible '
+                  'sous licence CC BY-SA 4.0.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant),
+                ),
+              ),
             ],
           );
         },
@@ -147,7 +214,6 @@ class _EntryCard extends StatelessWidget {
 
   String get _subtitle {
     final parts = <String>[
-      if (entry.pos != null) entry.pos!,
       if (entry.gender != null)
         switch (entry.gender) {
           'm' => 'masculin',
@@ -174,7 +240,52 @@ class _EntryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(entry.word, style: theme.textTheme.headlineSmall),
+            if (entry.pos != null)
+              Text(entry.pos!,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontStyle: FontStyle.italic,
+                      color: theme.colorScheme.primary)),
+            if (entry.etymology != null)
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: EdgeInsets.zero,
+                title: Text('Étymologie',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontStyle: FontStyle.italic)),
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TappableText(entry.etymology!),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            const SizedBox(height: 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(entry.word, style: theme.textTheme.headlineSmall),
+                ),
+                if (conjugation != null) ...[
+                  const SizedBox(width: 12),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      shape: const StadiumBorder(),
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            ConjugationScreen(conjugation: conjugation),
+                      ),
+                    ),
+                    child: const Text('conjugaison'),
+                  ),
+                ],
+              ],
+            ),
             if (_subtitle.isNotEmpty)
               Text(_subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -198,18 +309,6 @@ class _EntryCard extends StatelessWidget {
                 ],
               ),
             ],
-            if (conjugation != null) ...[
-              const SizedBox(height: 12),
-              FilledButton.tonalIcon(
-                icon: const Icon(Icons.table_chart_outlined),
-                label: const Text('Conjuguer'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => ConjugationScreen(conjugation: conjugation),
-                  ),
-                ),
-              ),
-            ],
             const SizedBox(height: 12),
             for (var i = 0; i < entry.senses.length; i++)
               _SenseTile(number: i + 1, sense: entry.senses[i]),
@@ -230,19 +329,6 @@ class _EntryCard extends StatelessWidget {
                   ],
                 ),
               ],
-            if (entry.etymology != null) ...[
-              const SizedBox(height: 8),
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: const Text('Étymologie'),
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: SelectableText(entry.etymology!),
-                  ),
-                ],
-              ),
-            ],
             if (entry.source == 'wiktionnaire')
               Align(
                 alignment: Alignment.centerLeft,
@@ -264,25 +350,34 @@ class _EntryCard extends StatelessWidget {
   }
 }
 
-class _SenseTile extends StatelessWidget {
+class _SenseTile extends StatefulWidget {
   const _SenseTile({required this.number, required this.sense});
 
   final int number;
   final Sense sense;
 
   @override
+  State<_SenseTile> createState() => _SenseTileState();
+}
+
+class _SenseTileState extends State<_SenseTile> {
+  bool _open = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final sense = widget.sense;
     final tags = [
       if (sense.register != null) sense.register!,
       if (sense.domain != null) sense.domain!,
     ];
+    final examples = sense.examples.take(3).toList();
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 28, child: Text('$number.')),
+          SizedBox(width: 28, child: Text('${widget.number}.')),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,17 +387,39 @@ class _SenseTile extends StatelessWidget {
                       style: theme.textTheme.labelMedium?.copyWith(
                           color: theme.colorScheme.primary,
                           fontStyle: FontStyle.italic)),
-                SelectableText(sense.definition),
-                for (final example in sense.examples.take(3))
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: SelectableText(
-                      example,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                          fontStyle: FontStyle.italic,
-                          color: theme.colorScheme.onSurfaceVariant),
+                TappableText(sense.definition),
+                if (examples.isNotEmpty)
+                  InkWell(
+                    onTap: () => setState(() => _open = !_open),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(_open ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                              size: 20, color: theme.colorScheme.primary),
+                          Text(
+                            _open
+                                ? 'enrouler'
+                                : 'exemples (${examples.length})',
+                            style: theme.textTheme.labelLarge
+                                ?.copyWith(color: theme.colorScheme.primary),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                if (_open)
+                  for (final example in examples)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 8),
+                      child: TappableText(
+                        example,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            fontStyle: FontStyle.italic,
+                            color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ),
               ],
             ),
           ),

@@ -1,3 +1,5 @@
+import 'dart:math' show Random;
+
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'db_installer.dart';
@@ -360,6 +362,57 @@ class DictionaryRepository {
       lastWord: rows.isEmpty ? afterWord : rows.last['word'] as String,
       more: rows.length == limit,
     );
+  }
+
+  /// Ramène un mot touché dans un texte à un mot du dictionnaire :
+  /// accents et majuscule ignorés, élision (« l’homme »), forme fléchie.
+  Future<String?> resolveWord(String token) async {
+    final candidates = <String>[token];
+    final afterApostrophe = token.split(RegExp(r"[’']"));
+    if (afterApostrophe.length > 1) {
+      candidates.add(afterApostrophe.sublist(1).join("'"));
+    }
+    final hyphenated = token.split('-');
+    if (hyphenated.length > 1) candidates.add(hyphenated.first);
+    for (final c in candidates) {
+      final n = normalize(c);
+      if (n.isEmpty) continue;
+      final rows = await _db.rawQuery(
+        'SELECT word FROM entries WHERE norm = ? AND is_lemma = 1 '
+        "ORDER BY (word = ?) DESC, (pos = 'nom propre') ASC, id LIMIT 1",
+        [n, c],
+      );
+      if (rows.isNotEmpty) return rows.first['word'] as String;
+      final viaForm = await _db.rawQuery(
+        'SELECT e.word AS word FROM forms f JOIN entries e ON e.id = f.entry_id '
+        "WHERE f.norm = ? ORDER BY (e.pos = 'nom propre') ASC, e.id LIMIT 1",
+        [n],
+      );
+      if (viaForm.isNotEmpty) return viaForm.first['word'] as String;
+    }
+    return null;
+  }
+
+  int? _minId;
+  int? _maxId;
+
+  /// Un mot au hasard (nom, verbe ou adjectif, sans espace).
+  Future<String?> randomWord() async {
+    if (_minId == null) {
+      final r = await _db.rawQuery('SELECT MIN(id) AS a, MAX(id) AS b FROM entries');
+      _minId = r.first['a'] as int?;
+      _maxId = r.first['b'] as int?;
+    }
+    final lo = _minId, hi = _maxId;
+    if (lo == null || hi == null) return null;
+    final pick = lo + Random().nextInt(hi - lo + 1);
+    final rows = await _db.rawQuery(
+      "SELECT word FROM entries WHERE id >= ? AND is_lemma = 1 "
+      "AND pos IN ('nom', 'verbe', 'adjectif') AND word NOT LIKE '% %' "
+      'ORDER BY id LIMIT 1',
+      [pick],
+    );
+    return rows.isEmpty ? null : rows.first['word'] as String;
   }
 
   /// Recherche par motif (mots croisés, Scrabble) : « ? » ou « _ » = une

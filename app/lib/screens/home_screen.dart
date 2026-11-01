@@ -8,6 +8,7 @@ import '../data/user_store.dart';
 import 'entry_screen.dart';
 import 'favorites_screen.dart';
 import 'index_screen.dart';
+import 'notes_screen.dart';
 import 'pattern_screen.dart';
 import 'review_screen.dart';
 import 'settings_screen.dart';
@@ -279,6 +280,21 @@ class _HomeContent extends StatelessWidget {
               label: const Text('Recherche par motif'),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const PatternScreen()),
+              ),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.shuffle, size: 18),
+              label: const Text('Mot au hasard'),
+              onPressed: () async {
+                final word = await AppScope.of(context).repo.randomWord();
+                if (word != null && context.mounted) openWord(context, word);
+              },
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.sticky_note_2_outlined, size: 18),
+              label: const Text('Mes notes'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const NotesScreen()),
               ),
             ),
             ActionChip(
