@@ -99,6 +99,53 @@ jobs:
           PY
           flutter pub get
           dart run flutter_launcher_icons -f icons_config/android.yaml
+      - name: Signature de l'application (clé permanente, si configurée)
+        working-directory: app
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::warning::Clé de signature absente : APK signé avec la clé de débogage (non publiable)."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          {
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "storeFile=upload-keystore.jks"
+          } > android/key.properties
+          python3 - <<'PY'
+          import os
+          kts='android/app/build.gradle.kts'
+          grv='android/app/build.gradle'
+          if os.path.exists(kts):
+              s=open(kts,encoding='utf-8').read()
+              s='import java.util.Properties\n'+s
+              block=('android {\n    signingConfigs {\n        create("release") {\n'
+                     '            val p = Properties().apply { load(rootProject.file("key.properties").inputStream()) }\n'
+                     '            keyAlias = p["keyAlias"] as String\n'
+                     '            keyPassword = p["keyPassword"] as String\n'
+                     '            storeFile = file(p["storeFile"] as String)\n'
+                     '            storePassword = p["storePassword"] as String\n        }\n    }\n')
+              s=s.replace('android {\n',block,1)
+              s=s.replace('signingConfigs.getByName("debug")','signingConfigs.getByName("release")')
+              open(kts,'w',encoding='utf-8').write(s)
+          else:
+              s=open(grv,encoding='utf-8').read()
+              s=s.replace("def keystoreProperties","def keystoreProperties")
+              block=("def keystoreProperties = new Properties()\nkeystoreProperties.load(new FileInputStream(rootProject.file('key.properties')))\n"
+                     "android {\n    signingConfigs {\n        release {\n"
+                     "            keyAlias keystoreProperties['keyAlias']\n            keyPassword keystoreProperties['keyPassword']\n"
+                     "            storeFile file(keystoreProperties['storeFile'])\n            storePassword keystoreProperties['storePassword']\n        }\n    }\n")
+              s=s.replace('android {\n',block,1)
+              s=s.replace('signingConfigs.debug','signingConfigs.release')
+              open(grv,'w',encoding='utf-8').write(s)
+          PY
+          grep -n "signingConfig" android/app/build.gradle* || true
       - name: Analyse
         working-directory: app
         run: |
