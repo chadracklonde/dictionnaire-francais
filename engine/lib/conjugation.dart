@@ -33,13 +33,8 @@ const List<String> _futEnd = ['ai', 'as', 'a', 'ons', 'ez', 'ont'];
 const List<String> _ps1End = ['ai', 'as', 'a', 'âmes', 'âtes', 'èrent'];
 const List<String> _ppAgree = ['(e)', '(e)', '(e)', '(e)s', '(e)(s)', '(e)s'];
 
-/// Verbes en -eler / -eter qui prennent un accent grave (au lieu de doubler).
-const Set<String> _graveExact = {
-  'acheter', 'racheter', 'haleter', 'fureter', 'bégueter', 'corseter',
-  'crocheter', 'fileter', 'geler', 'dégeler', 'congeler', 'surgeler',
-  'regeler', 'peler', 'celer', 'déceler', 'receler', 'harceler', 'ciseler',
-  'démanteler', 'écarteler', 'encasteler', 'marteler', 'modeler',
-};
+/// Verbes en -eler / -eter : accent grave par défaut ; doublement dans ces familles.
+final RegExp _doubleRe = RegExp(r'(ppeler|épeler|jeter|ouveler|raveler|museler|hâteler|gameler|usseler|usseter|cemeler|hemeler|onceler|abreter|ueneter|crespeler|empaqueter|encorseter|ippeler|espeler|ficeler|niveler|étinceler|ensorceler|chanceler|morceler|renouveler|bretteler|ruisseler|denteler|atteler|anneler|écheveler|ébûcheter|dételer|feuilleter|cacheter|étiqueter|voleter|hoqueter|épousseter|souffleter|breloqueter|pelleter|rebuter)$');
 
 final RegExp _reEAcute = RegExp(r'é([^aeiouyéèêëàâäîïôöûùü]{1,2})$');
 final RegExp _reEGu = RegExp(r'é(gu|qu)$');
@@ -219,7 +214,7 @@ _Simple _group1(String inf) {
     sstem = stem.substring(0, stem.length - 1) + 'i';
   } else if (stem.endsWith('el') || stem.endsWith('et')) {
     final last = stem[stem.length - 1];
-    if (_graveExact.contains(inf)) {
+    if (!_doubleRe.hasMatch(inf.replaceFirst(RegExp(r"^s[’']"), ''))) {
       kind = 'grave';
       sstem = stem.substring(0, stem.length - 2) + 'è' + last;
     } else {

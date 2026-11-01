@@ -28,13 +28,9 @@ FUT_END = ["ai", "as", "a", "ons", "ez", "ont"]
 PS1_END = ["ai", "as", "a", "âmes", "âtes", "èrent"]
 PP_AGREE = ["(e)", "(e)", "(e)", "(e)s", "(e)(s)", "(e)s"]
 
-# Verbes en -eler / -eter qui prennent un accent grave (au lieu de doubler)
-GRAVE_EXACT = {
-    "acheter", "racheter", "haleter", "fureter", "bégueter", "corseter",
-    "crocheter", "fileter", "geler", "dégeler", "congeler", "surgeler",
-    "regeler", "peler", "celer", "déceler", "receler", "harceler", "ciseler",
-    "démanteler", "écarteler", "encasteler", "marteler", "modeler",
-}
+# Verbes en -eler / -eter : accent grave par défaut (acheter, geler, peler…) ;
+# ils doublent la consonne dans ces familles (appeler, jeter, ...).
+DOUBLE_RE = re.compile(r"(ppeler|épeler|jeter|ouveler|raveler|museler|hâteler|gameler|usseler|usseter|cemeler|hemeler|onceler|abreter|ueneter|crespeler|empaqueter|encorseter|ippeler|espeler|ficeler|niveler|étinceler|ensorceler|chanceler|morceler|renouveler|bretteler|ruisseler|denteler|atteler|anneler|écheveler|ébûcheter|dételer|feuilleter|cacheter|étiqueter|voleter|hoqueter|épousseter|souffleter|breloqueter|pelleter|rebuter)$")
 RE_E_ACUTE = re.compile("é([^aeiouyéèêëàâäîïôöûùü]{1,2})$")
 RE_E_GU = re.compile("é(gu|qu)$")
 
@@ -109,7 +105,7 @@ def group1(inf):
     if len(stem) > 2 and stem.endswith("y") and not stem.endswith("ey"):
         kind, sstem = "y", stem[:-1] + "i"
     elif stem.endswith("el") or stem.endswith("et"):
-        if inf in GRAVE_EXACT:
+        if not DOUBLE_RE.search(re.sub(r"^s[’']", "", inf)):
             kind, sstem = "grave", stem[:-2] + "è" + stem[-1]
         else:
             kind, sstem = "double", stem + stem[-1]
