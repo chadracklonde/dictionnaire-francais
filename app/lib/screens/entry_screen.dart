@@ -385,7 +385,7 @@ class _EntryCardState extends State<_EntryCard> {
             for (final type in _relationLabels.keys)
               if (entry.relations[type]?.isNotEmpty ?? false) ...[
                 SizedBox(
-                    key: _relationKeys.putIfAbsent(type, GlobalKey),
+                    key: _relationKeys.putIfAbsent(type, () => GlobalKey()),
                     height: 12),
                 Text(_relationLabels[type]!, style: theme.textTheme.titleSmall),
                 const SizedBox(height: 4),
