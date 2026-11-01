@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _controller = TextEditingController();
   Timer? _debounce;
   List<SearchHit> _hits = const [];
+  List<SearchHit> _suggestions = const [];
   String? _wordOfTheDay;
 
   @override
@@ -47,13 +48,25 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onChanged(String text) {
     _debounce?.cancel();
     if (text.trim().isEmpty) {
-      setState(() => _hits = const []);
+      setState(() {
+        _hits = const [];
+        _suggestions = const [];
+      });
       return;
     }
     _debounce = Timer(const Duration(milliseconds: 120), () async {
-      final hits = await AppScope.of(context).repo.search(text);
+      final repo = AppScope.of(context).repo;
+      final hits = await repo.search(text);
       if (!mounted || _controller.text != text) return;
-      setState(() => _hits = hits);
+      setState(() {
+        _hits = hits;
+        if (hits.isNotEmpty) _suggestions = const [];
+      });
+      if (hits.isEmpty) {
+        final suggestions = await repo.suggest(text);
+        if (!mounted || _controller.text != text) return;
+        setState(() => _suggestions = suggestions);
+      }
     });
   }
 
@@ -108,7 +121,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _controller.clear();
-                          setState(() => _hits = const []);
+                          setState(() {
+                            _hits = const [];
+                            _suggestions = const [];
+                          });
                         },
                       ),
                 border: OutlineInputBorder(
@@ -120,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: query.isEmpty
                 ? _HomeContent(wordOfTheDay: _wordOfTheDay, user: services.user)
-                : _Results(hits: _hits, query: query),
+                : _Results(hits: _hits, query: query, suggestions: _suggestions),
           ),
         ],
       ),
@@ -129,15 +145,48 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _Results extends StatelessWidget {
-  const _Results({required this.hits, required this.query});
+  const _Results({
+    required this.hits,
+    required this.query,
+    required this.suggestions,
+  });
 
   final List<SearchHit> hits;
   final String query;
+  final List<SearchHit> suggestions;
 
   @override
   Widget build(BuildContext context) {
     if (hits.isEmpty) {
-      return Center(child: Text('Aucun résultat pour « $query ».'));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Aucun résultat pour « $query ».',
+                  textAlign: TextAlign.center),
+              if (suggestions.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Text('Vouliez-vous dire :'),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    for (final s in suggestions)
+                      ActionChip(
+                        label: Text(s.word),
+                        onPressed: () => openWord(context, s.word),
+                      ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
     }
     return ListView.separated(
       itemCount: hits.length,

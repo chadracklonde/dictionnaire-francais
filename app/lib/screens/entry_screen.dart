@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
 import '../data/models.dart';
+import '../data/speech.dart';
 import 'conjugation_screen.dart';
 import 'home_screen.dart';
 
@@ -44,6 +45,21 @@ class _EntryScreenState extends State<EntryScreen> {
       appBar: AppBar(
         title: Text(widget.word),
         actions: [
+          IconButton(
+            tooltip: 'Écouter la prononciation',
+            icon: const Icon(Icons.volume_up_outlined),
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final ok = await speech.speak(widget.word);
+              if (!ok) {
+                messenger.showSnackBar(const SnackBar(
+                  content: Text(
+                      'Voix française indisponible. Installez-la dans les '
+                      'paramètres du téléphone (Synthèse vocale).'),
+                ));
+              }
+            },
+          ),
           ListenableBuilder(
             listenable: user,
             builder: (context, _) {

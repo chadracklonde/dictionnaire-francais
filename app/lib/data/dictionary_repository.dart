@@ -213,6 +213,97 @@ class DictionaryRepository {
     return (words: w.first['n'] as int, verbs: v.first['n'] as int);
   }
 
+  /// « Vouliez-vous dire… ? » : mots proches d'une saisie sans résultat
+  /// (distance d'édition de Damerau, sans connexion). Candidats : même
+  /// première lettre et longueur voisine ; à défaut, mots contenant un
+  /// fragment de la saisie (première lettre fautive).
+  Future<List<SearchHit>> suggest(String query, {int limit = 5}) async {
+    final q = normalize(query.trim());
+    if (q.length < 3 || q.contains(' ')) return const [];
+    final n = q.length;
+    final maxDist = n <= 4 ? 1 : 2;
+    const select = 'SELECT word, norm, MAX(freq) AS freq FROM entries '
+        "WHERE is_lemma = 1 AND pos != 'nom propre' AND norm NOT LIKE '% %' "
+        'AND length(norm) BETWEEN ? AND ?';
+
+    var rows = await _db.rawQuery(
+      '$select AND norm >= ? AND norm < ? GROUP BY word, norm',
+      [n - 2, n + 2, q[0], '${q[0]}\uffff'],
+    );
+    var scored = _scoreSuggestions(q, rows, maxDist);
+    if (scored.isEmpty) {
+      final fragment = q.substring(1, n < 4 ? n : 4);
+      rows = await _db.rawQuery(
+        '$select AND norm LIKE ? GROUP BY word, norm',
+        [n - 2, n + 2, '%$fragment%'],
+      );
+      scored = _scoreSuggestions(q, rows, maxDist);
+    }
+    if (scored.isEmpty) return const [];
+    scored.sort((a, b) {
+      final byDist = a.dist.compareTo(b.dist);
+      if (byDist != 0) return byDist;
+      final byFreq = b.freq.compareTo(a.freq);
+      return byFreq != 0 ? byFreq : a.word.compareTo(b.word);
+    });
+    final best = scored.first.dist;
+    final seen = <String>{};
+    return [
+      for (final s in scored)
+        if (s.dist == best && seen.add(s.word)) SearchHit(word: s.word),
+    ].take(limit).toList();
+  }
+
+  static List<({String word, int dist, int freq})> _scoreSuggestions(
+    String q,
+    List<Map<String, Object?>> rows,
+    int maxDist,
+  ) {
+    final out = <({String word, int dist, int freq})>[];
+    for (final r in rows) {
+      final d = editDistance(q, r['norm'] as String, maxDist);
+      if (d <= maxDist) {
+        out.add((
+          word: r['word'] as String,
+          dist: d,
+          freq: (r['freq'] as int?) ?? 0,
+        ));
+      }
+    }
+    return out;
+  }
+
+  /// Distance de Damerau (substitution, ajout, retrait, échange de deux
+  /// lettres voisines) ; s'arrête dès que [max] est dépassé.
+  static int editDistance(String a, String b, int max) {
+    if ((a.length - b.length).abs() > max) return max + 1;
+    var prev2 = List<int>.filled(b.length + 1, 0);
+    var prev = List<int>.generate(b.length + 1, (j) => j);
+    for (var i = 1; i <= a.length; i++) {
+      final cur = List<int>.filled(b.length + 1, 0)..[0] = i;
+      var best = cur[0];
+      for (var j = 1; j <= b.length; j++) {
+        final cost = a.codeUnitAt(i - 1) == b.codeUnitAt(j - 1) ? 0 : 1;
+        var v = prev[j] + 1;
+        if (cur[j - 1] + 1 < v) v = cur[j - 1] + 1;
+        if (prev[j - 1] + cost < v) v = prev[j - 1] + cost;
+        if (i > 1 &&
+            j > 1 &&
+            a.codeUnitAt(i - 1) == b.codeUnitAt(j - 2) &&
+            a.codeUnitAt(i - 2) == b.codeUnitAt(j - 1) &&
+            prev2[j - 2] + 1 < v) {
+          v = prev2[j - 2] + 1;
+        }
+        cur[j] = v;
+        if (v < best) best = v;
+      }
+      if (best > max) return max + 1;
+      prev2 = prev;
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+
   /// Parcours alphabétique : les mots dont la forme normalisée commence par
   /// [prefix], dans l'ordre du dictionnaire (accents ignorés). Pagination par
   /// clé ([afterNorm]/[afterWord]) : rapide même sur 500 000 entrées.
