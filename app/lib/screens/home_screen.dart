@@ -28,6 +28,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _controller = TextEditingController();
+  final _focus = FocusNode();
   Timer? _debounce;
   List<SearchHit> _hits = const [];
   List<SearchHit> _suggestions = const [];
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _debounce?.cancel();
     _controller.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -87,6 +89,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Dictionnaire'),
         actions: [
           IconButton(
+            tooltip: 'Rechercher',
+            icon: const Icon(Icons.search),
+            onPressed: () => _focus.requestFocus(),
+          ),
+          IconButton(
             tooltip: 'Favoris et historique',
             icon: const Icon(Icons.star_outline),
             onPressed: () => Navigator.of(context).push(
@@ -108,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: TextField(
               controller: _controller,
+              focusNode: _focus,
               autofocus: false,
               textInputAction: TextInputAction.search,
               onChanged: (text) {
@@ -139,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: query.isEmpty
                 ? _HomeContent(wordOfTheDay: _wordOfTheDay, user: services.user)
-                : _Results(hits: _hits, query: query, suggestions: _suggestions),
+                : SearchResults(hits: _hits, query: query, suggestions: _suggestions),
           ),
         ],
       ),
@@ -147,8 +155,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _Results extends StatelessWidget {
-  const _Results({
+class SearchResults extends StatelessWidget {
+  const SearchResults({
     required this.hits,
     required this.query,
     required this.suggestions,
@@ -252,22 +260,6 @@ class _HomeContent extends StatelessWidget {
               ),
             ),
           ),
-        if (history.isNotEmpty) ...[
-          const SizedBox(height: 24),
-          Text('Récemment consultés', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final word in history)
-                ActionChip(
-                  label: Text(word),
-                  onPressed: () => openWord(context, word),
-                ),
-            ],
-          ),
-        ],
         const SizedBox(height: 24),
         Text('Outils', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
@@ -339,6 +331,22 @@ class _HomeContent extends StatelessWidget {
               ),
           ],
         ),
+        if (history.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Text('Récemment consultés', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final word in history)
+                ActionChip(
+                  label: Text(word),
+                  onPressed: () => openWord(context, word),
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }

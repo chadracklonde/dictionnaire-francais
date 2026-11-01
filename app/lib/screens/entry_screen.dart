@@ -9,6 +9,7 @@ import '../data/speech.dart';
 import 'conjugation_screen.dart';
 import 'home_screen.dart';
 import 'notes_screen.dart';
+import 'search_screen.dart';
 import 'tappable_text.dart';
 
 const Map<String, String> _relationLabels = {
@@ -113,6 +114,13 @@ class _EntryScreenState extends State<EntryScreen> {
             tooltip: 'Copier la définition',
             icon: const Icon(Icons.copy_outlined),
             onPressed: _copy,
+          ),
+          IconButton(
+            tooltip: 'Rechercher un mot',
+            icon: const Icon(Icons.search),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const SearchScreen()),
+            ),
           ),
           ListenableBuilder(
             listenable: user,
