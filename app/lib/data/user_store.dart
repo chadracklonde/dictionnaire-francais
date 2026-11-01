@@ -90,6 +90,10 @@ class UserStore extends ChangeNotifier {
   /// Réglages : thème (system, light, dark), taille du texte, rappel quotidien.
   String get themeMode => _prefs.getString('themeMode') ?? 'system';
   double get textScale => _prefs.getDouble('textScale') ?? 1.0;
+  /// Le tutoriel de bienvenue a déjà été vu (ou passé).
+  bool get tutorialSeen => _prefs.getBool('tutorialSeen') ?? false;
+  Future<void> setTutorialSeen() => _prefs.setBool('tutorialSeen', true);
+
   bool get dailyWord => _prefs.getBool('dailyWord') ?? false;
 
   Future<void> setThemeMode(String value) async {

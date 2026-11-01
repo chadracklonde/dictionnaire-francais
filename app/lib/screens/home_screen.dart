@@ -14,6 +14,7 @@ import 'notes_screen.dart';
 import 'pattern_screen.dart';
 import 'review_screen.dart';
 import 'settings_screen.dart';
+import 'tutorial_screen.dart';
 
 void openWord(BuildContext context, String word) {
   Navigator.of(context).push(
@@ -49,6 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    final user = AppScope.of(context).user;
+    if (!user.tutorialSeen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) TutorialScreen.show(context, user);
+      });
+    }
     AppScope.of(context).repo.wordOfTheDay(DateTime.now()).then((word) {
       if (mounted) setState(() => _wordOfTheDay = word);
     });

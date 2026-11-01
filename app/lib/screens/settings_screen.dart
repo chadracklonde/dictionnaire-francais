@@ -6,6 +6,7 @@ import '../app.dart';
 import '../data/user_store.dart';
 import '../data/notifier.dart';
 import 'licenses_screen.dart';
+import 'tutorial_screen.dart';
 
 /// Réglages : thème, taille du texte, rappel quotidien.
 class SettingsScreen extends StatelessWidget {
@@ -118,6 +119,12 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
               const Divider(height: 32),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.help_outline),
+                title: const Text('Revoir le tutoriel'),
+                onTap: () => TutorialScreen.show(context, user),
+              ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.info_outline),
