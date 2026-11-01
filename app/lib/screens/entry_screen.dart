@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:flutter/services.dart'
+    show Clipboard, ClipboardData, HapticFeedback;
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -129,7 +130,10 @@ class _EntryScreenState extends State<EntryScreen> {
               return IconButton(
                 tooltip: fav ? 'Retirer des favoris' : 'Ajouter aux favoris',
                 icon: Icon(fav ? Icons.star : Icons.star_outline),
-                onPressed: () => user.toggleFavorite(widget.word),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  user.toggleFavorite(widget.word);
+                },
               );
             },
           ),
@@ -141,6 +145,12 @@ class _EntryScreenState extends State<EntryScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            IconButton(
+              tooltip: 'Accueil',
+              icon: const Icon(Icons.home_outlined),
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
+            ),
             IconButton(
               tooltip: 'Mot au hasard',
               icon: const Icon(Icons.shuffle),
@@ -215,10 +225,32 @@ class _EntryScreenState extends State<EntryScreen> {
   }
 }
 
-class _EntryCard extends StatelessWidget {
+class _EntryCard extends StatefulWidget {
   const _EntryCard({required this.entry});
 
   final EntryData entry;
+
+  @override
+  State<_EntryCard> createState() => _EntryCardState();
+}
+
+class _EntryCardState extends State<_EntryCard> {
+  final _sensesKey = GlobalKey();
+  final _relationKeys = <String, GlobalKey>{};
+
+  EntryData get entry => widget.entry;
+
+  void _goTo(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(ctx,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+  }
+
+  List<String> get _presentRelations => [
+        for (final type in _relationLabels.keys)
+          if (entry.relations[type]?.isNotEmpty ?? false) type,
+      ];
 
   String get _subtitle {
     final parts = <String>[
@@ -274,7 +306,11 @@ class _EntryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(
-                  child: Text(entry.word, style: theme.textTheme.headlineSmall),
+                  child: Semantics(
+                    header: true,
+                    child: Text(entry.word,
+                        style: theme.textTheme.headlineSmall),
+                  ),
                 ),
                 if (conjugation != null) ...[
                   const SizedBox(width: 12),
@@ -321,12 +357,36 @@ class _EntryCard extends StatelessWidget {
               const SizedBox(height: 12),
               _InflectionTable(entry: entry),
             ],
-            const SizedBox(height: 12),
+            if (_presentRelations.isNotEmpty && entry.senses.length >= 3) ...[
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ActionChip(
+                      avatar: const Icon(Icons.format_list_numbered, size: 16),
+                      label: const Text('Définitions'),
+                      onPressed: () => _goTo(_sensesKey),
+                    ),
+                    for (final type in _presentRelations) ...[
+                      const SizedBox(width: 8),
+                      ActionChip(
+                        label: Text(_relationLabels[type]!),
+                        onPressed: () => _goTo(_relationKeys[type]!),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            SizedBox(key: _sensesKey, height: 12),
             for (var i = 0; i < entry.senses.length; i++)
               _SenseTile(number: i + 1, sense: entry.senses[i]),
             for (final type in _relationLabels.keys)
               if (entry.relations[type]?.isNotEmpty ?? false) ...[
-                const SizedBox(height: 12),
+                SizedBox(
+                    key: _relationKeys.putIfAbsent(type, GlobalKey),
+                    height: 12),
                 Text(_relationLabels[type]!, style: theme.textTheme.titleSmall),
                 const SizedBox(height: 4),
                 Wrap(

@@ -267,6 +267,26 @@ class DictionaryRepository {
       );
       scored = _scoreSuggestions(q, rows, maxDist);
     }
+    if (scored.isEmpty) {
+      // Dernier recours : proximité phonétique (fotographie -> photographie).
+      final key = phonetic(q);
+      rows = await _db.rawQuery(
+        '$select GROUP BY word, norm',
+        [n - 3, n + 3],
+      );
+      final out = <({String word, int dist, int freq})>[];
+      for (final r in rows) {
+        final d = editDistance(key, phonetic(r['norm'] as String), 1);
+        if (d <= (key.length <= 4 ? 0 : 1)) {
+          out.add((
+            word: r['word'] as String,
+            dist: d,
+            freq: (r['freq'] as int?) ?? 0,
+          ));
+        }
+      }
+      scored = out;
+    }
     if (scored.isEmpty) return const [];
     scored.sort((a, b) {
       final byDist = a.dist.compareTo(b.dist);
@@ -280,6 +300,25 @@ class DictionaryRepository {
       for (final s in scored)
         if (s.dist == best && seen.add(s.word)) SearchHit(word: s.word),
     ].take(limit).toList();
+  }
+
+  /// Clé approximative de prononciation d'un mot normalisé (sans accents) :
+  /// ph/f, qu/k/c, ss/s, eau/au/o, ai/ei/e, y/i, lettres doubles et finales muettes.
+  static String phonetic(String word) {
+    var t = word;
+    const rules = <List<String>>[
+      ['eau', 'o'], ['au', 'o'], ['ph', 'f'], ['qu', 'k'], ['ck', 'k'],
+      ['ch', 'S'], ['gn', 'N'], ['ai', 'e'], ['ei', 'e'], ['oi', 'oa'],
+      ['y', 'i'], ['w', 'v'], ['k', 'k'],
+    ];
+    for (final r in rules) {
+      t = t.replaceAll(r[0], r[1]);
+    }
+    t = t.replaceAllMapped(RegExp('c(?=[eiy])'), (_) => 's');
+    t = t.replaceAll('c', 'k').replaceAll('h', '');
+    t = t.replaceAll(RegExp(r'(.)\1+'), r'\1');
+    t = t.replaceAll(RegExp('(?<=.{3})[sxtdze]+\$'), '');
+    return t;
   }
 
   static List<({String word, int dist, int freq})> _scoreSuggestions(

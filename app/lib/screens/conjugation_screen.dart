@@ -1,5 +1,6 @@
 import 'package:dictionnaire_engine/conjugation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
 /// Tous les modes et temps d'un verbe, un onglet par mode.
 class ConjugationScreen extends StatelessWidget {
@@ -79,9 +80,28 @@ class _MoodView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tenseLabels[tense] ?? tense,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(color: theme.colorScheme.primary)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(tenseLabels[tense] ?? tense,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                                color: theme.colorScheme.primary)),
+                      ),
+                      IconButton(
+                        tooltip: 'Copier ce temps',
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.copy_outlined, size: 20),
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          await Clipboard.setData(ClipboardData(
+                              text: '${tenseLabels[tense] ?? tense}\n'
+                                  '${lines.join('\n')}'));
+                          messenger.showSnackBar(const SnackBar(
+                              content: Text('Temps copié.')));
+                        },
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   for (final line in lines) SelectableText(line),
                 ],

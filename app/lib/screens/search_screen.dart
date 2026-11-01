@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../app.dart';
 import '../data/models.dart';
+import '../data/user_store.dart';
 import 'home_screen.dart';
 
 /// Écran de recherche accessible depuis la loupe de l'entête.
@@ -89,8 +90,45 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
       body: query.isEmpty
-          ? const SizedBox.expand()
+          ? _Recent(user: AppScope.of(context).user)
           : SearchResults(hits: _hits, query: query, suggestions: _suggestions),
+    );
+  }
+}
+
+class _Recent extends StatelessWidget {
+  const _Recent({required this.user});
+
+  final UserStore user;
+
+  @override
+  Widget build(BuildContext context) {
+    final words = user.history.take(15).toList();
+    if (words.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            'Tapez un mot, ou « conjuguer manger » pour une conjugaison.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Text('Récemment consultés',
+              style: Theme.of(context).textTheme.titleSmall),
+        ),
+        for (final w in words)
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: Text(w),
+            onTap: () => openWord(context, w),
+          ),
+      ],
     );
   }
 }

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:dictionnaire_engine/conjugation.dart';
 import 'package:flutter/material.dart';
 
 import '../app.dart';
 import '../data/models.dart';
 import '../data/user_store.dart';
+import 'conjugation_screen.dart';
 import 'entry_screen.dart';
 import 'favorites_screen.dart';
 import 'index_screen.dart';
@@ -17,6 +19,16 @@ void openWord(BuildContext context, String word) {
   Navigator.of(context).push(
     MaterialPageRoute<void>(builder: (_) => EntryScreen(word: word)),
   );
+}
+
+/// « conjuguer manger », « conjugaison de se laver » : renvoie la conjugaison.
+Conjugation? conjugationFromQuery(BuildContext context, String query) {
+  final m = RegExp(
+    r"^\s*(?:conjuguer|conjugaison)\b\s*(?:de la |de l['’]|du |de |d['’]|le verbe )?(.+)$",
+    caseSensitive: false,
+  ).firstMatch(query);
+  if (m == null) return null;
+  return AppScope.of(context).conjugator.conjugate(m.group(1)!.trim());
 }
 
 class HomeScreen extends StatefulWidget {
@@ -168,6 +180,26 @@ class SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final conj = conjugationFromQuery(context, query);
+    final body = _body(context);
+    if (conj == null) return body;
+    final title = conj.reflexive ? 'se ${conj.infinitive}' : conj.infinitive;
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.table_chart_outlined),
+          title: Text('Conjuguer « $title »'),
+          subtitle: const Text('Tous les modes et temps'),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => ConjugationScreen(conjugation: conj))),
+        ),
+        const Divider(height: 1),
+        Expanded(child: body),
+      ],
+    );
+  }
+
+  Widget _body(BuildContext context) {
     if (hits.isEmpty) {
       return Center(
         child: Padding(
