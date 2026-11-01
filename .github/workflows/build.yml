@@ -153,10 +153,17 @@ jobs:
       - name: APK
         working-directory: app
         run: flutter build apk --release
+      - name: Bundle Play Store (.aab)
+        working-directory: app
+        run: |
+          flutter build appbundle --release
+          ls -l build/app/outputs/bundle/release/app-release.aab
       - uses: actions/upload-artifact@v4
         with:
           name: dictionnaire-android
-          path: app/build/app/outputs/flutter-apk/app-release.apk
+          path: |
+            app/build/app/outputs/flutter-apk/app-release.apk
+            app/build/app/outputs/bundle/release/app-release.aab
       - name: Publier l'APK en téléchargement direct (sans zip)
         if: github.event_name != 'pull_request'
         env:
@@ -167,6 +174,8 @@ jobs:
             --title "APK le plus récent" --prerelease \
             --notes "Dernier APK Android compilé. Téléchargez directement le fichier .apk ci-dessous."
           gh release upload apk-dernier dictionnaire-et-conjugaison.apk --clobber
+          cp app/build/app/outputs/bundle/release/app-release.aab dictionnaire-et-conjugaison.aab
+          gh release upload apk-dernier dictionnaire-et-conjugaison.aab --clobber
 
   windows:
     needs: tests
