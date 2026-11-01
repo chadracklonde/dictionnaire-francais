@@ -55,7 +55,7 @@ jobs:
       - name: Préparer le projet
         working-directory: app
         run: |
-          flutter create --platforms=android .
+          flutter create --org com.chadracklonde --platforms=android .
           rm -f test/widget_test.dart
           python3 - <<'PY'
           p='android/app/src/main/AndroidManifest.xml'
