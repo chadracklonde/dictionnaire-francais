@@ -6,15 +6,15 @@ import 'home_screen.dart' show openWord;
 
 /// Mots outils : non cliquables (comme « le », « de », « pour »…).
 const Set<String> _stopWords = {
-  'les', 'des', 'une', 'aux', 'son', 'ses', 'mon', 'mes', 'ton', 'tes', 'nos',
-  'vos', 'leur', 'leurs', 'ces', 'cet', 'cette', 'qui', 'que', 'quoi', 'dont',
-  'est', 'sont', 'été', 'être', 'avec', 'sans', 'pour', 'par', 'sur', 'sous',
-  'dans', 'chez', 'vers', 'entre', 'ainsi', 'mais', 'donc', 'car', 'puis',
-  'plus', 'très', 'tout', 'tous', 'toute', 'toutes', 'bien', 'aussi', 'comme',
-  'elle', 'elles', 'ils', 'nous', 'vous', 'lui', 'eux', 'ceux', 'celui',
-  'celle', 'celles', 'ici', 'peut', 'fait', 'etc', 'pas', 'ne', 'ou', 'où',
-  'et', 'en', 'au', 'du', 'de', 'la', 'le', 'un', 'on', 'se', 'sa', 'ce',
-  'qu', 'ni', 'si', 'se', 'ça', 'y',
+  'les', 'des', 'une', 'aux', 'son', 'ses', 'mon', 'mes', 'ton', 'tes',
+  'nos', 'vos', 'leur', 'leurs', 'ces', 'cet', 'cette', 'qui', 'que',
+  'quoi', 'dont', 'est', 'sont', 'été', 'être', 'avec', 'sans', 'pour',
+  'par', 'sur', 'sous', 'dans', 'chez', 'vers', 'entre', 'ainsi', 'mais',
+  'donc', 'car', 'puis', 'plus', 'très', 'tout', 'tous', 'toute', 'toutes',
+  'bien', 'aussi', 'comme', 'elle', 'elles', 'ils', 'nous', 'vous', 'lui',
+  'eux', 'ceux', 'celui', 'celle', 'celles', 'ici', 'peut', 'fait', 'etc',
+  'pas', 'ne', 'ou', 'où', 'et', 'en', 'au', 'du', 'de', 'la', 'le', 'un',
+  'on', 'se', 'sa', 'ce', 'qu', 'ni', 'si', 'ça', 'y',
 };
 
 final RegExp _wordPattern =
