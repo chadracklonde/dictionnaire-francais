@@ -24,6 +24,9 @@ class InstallScreen extends StatelessWidget {
 
   static const _gold = Color(0xFFF2B632);
 
+  /// Arrondi vers le bas au millier : 521 367 -> 521 000 (jamais surévalué).
+  static int _floorK(int n) => n >= 1000 ? n ~/ 1000 * 1000 : n;
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -62,7 +65,7 @@ class InstallScreen extends StatelessWidget {
                       ),
                     ),
                     const Text(
-                      'en Français',
+                      'et Conjugaison',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _gold,
@@ -75,15 +78,20 @@ class InstallScreen extends StatelessWidget {
                     _Feature(
                       icon: Icons.manage_search_rounded,
                       text: words != null
-                          ? '${formatCount(words!)} ${words == 1 ? 'mot' : 'mots'}'
+                          ? '${formatCount(_floorK(words!))} mots et définitions'
                           : 'Des centaines de milliers de mots',
                     ),
                     const SizedBox(height: 14),
                     _Feature(
                       icon: Icons.menu_book_rounded,
                       text: verbs != null
-                          ? '${formatCount(verbs!)} ${verbs == 1 ? 'verbe conjugué' : 'verbes conjugués'}'
+                          ? '${formatCount(_floorK(verbs!))} verbes conjugués'
                           : 'Conjugaison complète',
+                    ),
+                    const SizedBox(height: 14),
+                    const _Feature(
+                      icon: Icons.cloud_off_rounded,
+                      text: '100 % hors ligne',
                     ),
                     const SizedBox(height: 40),
                     if (error == null) ...[

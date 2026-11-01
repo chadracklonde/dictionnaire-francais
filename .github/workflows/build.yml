@@ -59,6 +59,8 @@ jobs:
           p='android/app/src/main/AndroidManifest.xml'
           s=open(p,encoding='utf-8').read()
           q='<queries><intent><action android:name="android.intent.action.VIEW"/><data android:scheme="https"/></intent></queries>'
+          import re
+          s=re.sub(r'android:label="[^"]*"','android:label="Dictionnaire et Conjugaison"',s,count=1)
           if '<queries>' not in s:
               s=s.replace('<application', q+'\n    <application',1)
           open(p,'w',encoding='utf-8').write(s)
@@ -101,6 +103,7 @@ jobs:
         working-directory: app
         run: |
           flutter create --platforms=windows .
+          sed -i 's/L"dictionnaire"/L"Dictionnaire et Conjugaison"/' windows/runner/main.cpp
           flutter pub get
           dart run flutter_launcher_icons -f icons_config/windows.yaml
           flutter build windows --release

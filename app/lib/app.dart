@@ -101,7 +101,7 @@ class _DictionnaireAppState extends State<DictionnaireApp> {
   Widget build(BuildContext context) {
     final services = _services;
     final app = MaterialApp(
-      title: 'Dictionnaire',
+      title: 'Dictionnaire et Conjugaison',
       debugShowCheckedModeBanner: false,
       theme: _theme(Brightness.light),
       darkTheme: _theme(Brightness.dark),

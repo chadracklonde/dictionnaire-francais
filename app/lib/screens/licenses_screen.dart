@@ -45,7 +45,7 @@ class LicensesScreen extends StatelessWidget {
                         child: Image.asset('assets/icon/logo.png', width: 96),
                       ),
                       const SizedBox(height: 12),
-                      Text('Dictionnaire en Français',
+                      Text('Dictionnaire et Conjugaison',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineSmall),
                       const SizedBox(height: 4),
@@ -129,7 +129,7 @@ class LicensesScreen extends StatelessWidget {
                   OutlinedButton(
                     onPressed: () => showLicensePage(
                       context: context,
-                      applicationName: 'Dictionnaire en Français',
+                      applicationName: 'Dictionnaire et Conjugaison',
                       applicationVersion: appVersion,
                     ),
                     child: const Text('Licences des composants logiciels'),
