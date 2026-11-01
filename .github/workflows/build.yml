@@ -30,6 +30,8 @@ jobs:
   android:
     needs: tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -108,6 +110,16 @@ jobs:
         with:
           name: dictionnaire-android
           path: app/build/app/outputs/flutter-apk/app-release.apk
+      - name: Publier l'APK en téléchargement direct (sans zip)
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp app/build/app/outputs/flutter-apk/app-release.apk dictionnaire-et-conjugaison.apk
+          gh release view apk-dernier >/dev/null 2>&1 || gh release create apk-dernier \
+            --title "APK le plus récent" --prerelease \
+            --notes "Dernier APK Android compilé. Téléchargez directement le fichier .apk ci-dessous."
+          gh release upload apk-dernier dictionnaire-et-conjugaison.apk --clobber
 
   windows:
     needs: tests
